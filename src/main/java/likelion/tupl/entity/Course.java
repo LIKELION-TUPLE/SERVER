@@ -23,5 +23,5 @@ public class Course {
     private String course_time;
     private Integer payment_cycle;
     private Boolean want_alarmtalk;
-    //왜안되지2
+    //왜안되지3
 }
