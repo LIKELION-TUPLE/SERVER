@@ -22,6 +22,6 @@ public class Course {
     private String subject;
     private String course_time;
     private Integer payment_cycle;
-    private Boolean want_alarmtalk;
-    //왜안되지3
+    private Integer payment_delayed;
+    private Boolean want_alarm_talk;
 }
