@@ -15,13 +15,13 @@ public class Course {
     private Long id;
 
     private String color;
-    private String stu_name;
-    private Integer stu_age;
-    private Integer stu_grade;
-    private String parent_phone;
+    private String studentName;
+    private Integer studentAge;
+    private Integer studentGrade;
+    private String parentPhone;
     private String subject;
-    private String course_time;
-    private Integer payment_cycle;
-    private Integer payment_delayed;
-    private Boolean want_alarm_talk;
+    private String courseTime;
+    private Integer paymentCycle;
+    private Integer paymentDelayed;
+    private Boolean wantAlarmTalk;
 }
