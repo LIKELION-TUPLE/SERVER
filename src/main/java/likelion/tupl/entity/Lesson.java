@@ -29,6 +29,7 @@ public class Lesson {
     @DateTimeFormat(pattern = "HH:mm")
     private LocalTime endTime; // 종료 시간
 
+    private DOW dow; // 요일
     private String place; // 장소
     private String studyContent; // 오늘 나간 진도
     private Integer currentLessonTime;// 현재 회차
