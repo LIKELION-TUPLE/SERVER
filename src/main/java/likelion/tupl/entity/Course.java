@@ -6,6 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,8 +21,9 @@ public class Course {
     private Integer studentGrade;
     private String parentPhone;
     private String subject;
-    private String courseTime;
+    private Integer courseTime; // 입금 회차
     private Integer paymentCycle;
     private Integer paymentDelayed;
     private Boolean wantAlarmTalk;
+    private Integer totalLessonTime; // 전체 회차
 }
