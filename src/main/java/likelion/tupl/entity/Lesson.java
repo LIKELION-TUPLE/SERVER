@@ -11,10 +11,9 @@ import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
-@Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "lesson")
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +32,6 @@ public class Lesson {
     private String place; // 장소
     private String studyContent; // 오늘 나간 진도
     private Integer currentLessonTime;// 현재 회차
-    private Integer totalLessonTime; // 전체 회차
 
     // 의존 관계 매핑: course_id(FK)
     @ManyToOne
