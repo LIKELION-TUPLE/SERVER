@@ -35,8 +35,8 @@ public class LessonService {
 
         // lesson에 추가적으로 저장해야 할 것: 현재 회차
         int totalTime = lesson.getCourse().getTotalLessonTime();
-        int courseTime = lesson.getCourse().getCourseTime();
-        int curTime = totalTime % courseTime;
+        int paymentCycle = lesson.getCourse().getPaymentCycle();
+        int curTime = totalTime % paymentCycle;
         lesson.setCurrentLessonTime(curTime);
 
         // course에 전체 회차 업데이트
