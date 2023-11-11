@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,7 +16,18 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     // create course: 과외 추가
-    public CourseDto createCourse(CourseDto courseDto) {
+    public String createCourse(CourseDto courseDto) {
+
+        //랜덤 초대코드(generatedCode) 생성 로직
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+        String generatedCode = random.ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
 
         // courseDto에서 받는 것: 대표 색상, 학생 이름, 학생 나이, 학생 학교, 학생 학년, 학생 폰 번호, 학부모 폰 번호,
         //                      과외 과목, 수업 시간, 입금 회차        // 밀린 입금 횟수, 전체 회차 초기 값은 0
@@ -32,6 +44,7 @@ public class CourseService {
                 .paymentCycle(courseDto.getPaymentCycle())
                 .paymentDelayed(0)
                 .totalLessonTime(0)
+                .inviteCode(generatedCode)
                 .build();
 
         // course을 DB에 저장
@@ -40,7 +53,7 @@ public class CourseService {
         // return할 courseDto를 업데이트
         courseDto.setId(course.getId());
 
-        return courseDto;
+        return generatedCode;
         //초대코드 로직 추가 필요
     }
 
