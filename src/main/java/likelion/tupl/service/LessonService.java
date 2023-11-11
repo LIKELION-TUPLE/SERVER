@@ -1,14 +1,25 @@
 package likelion.tupl.service;
 
+import likelion.tupl.dto.HomeworkDto;
 import likelion.tupl.dto.LessonDto;
 import likelion.tupl.entity.Course;
+import likelion.tupl.entity.Homework;
 import likelion.tupl.entity.Lesson;
+import likelion.tupl.exception.ResourceNotFoundException;
 import likelion.tupl.repository.CourseRepository;
 import likelion.tupl.repository.HomeworkRepository;
 import likelion.tupl.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +62,27 @@ public class LessonService {
         lessonDto.setCourseId(lesson.getCourse().getId());
 
         return lessonDto;
+    }
+
+    // delete lesson: lesson_id에 대한 lesson 삭제
+    public ResponseEntity<Map<String, Boolean>> deleteLesson(Long lesson_id) {
+        // 삭제할 Lesson 객체 가져옴
+        Lesson lesson = lessonRepository.findById(lesson_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not exist with id :" + lesson_id));
+        // lesson에 딸려 있는 homework 삭제
+        List<Homework> homeworkList = homeworkRepository.findByLessonId(lesson_id);
+        Iterator<Homework> homeworkIterator = homeworkList.iterator();
+        while(homeworkIterator.hasNext()) {
+            Homework homework = homeworkIterator.next();
+            homeworkRepository.delete(homework);
+        }
+
+        // lesson 삭제
+        lessonRepository.delete(lesson);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("Lesson-deleted", Boolean.TRUE);
+
+        return ResponseEntity.ok(response);
     }
 }
