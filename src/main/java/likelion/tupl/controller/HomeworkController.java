@@ -30,4 +30,10 @@ public class HomeworkController {
         return homeworkService.deleteHomework(homework_id);
     }
 
+    // change homework completed: homework_id에 대해서 completed 여부 수정
+    @PutMapping("lessons/homeworks/change-completed/{homework_id}")
+    public HomeworkDto changeHomeworkCompleted(@PathVariable Long homework_id, @RequestBody HomeworkDto homeworkDto) {
+        return homeworkService.changeHomeworkCompleted(homework_id, homeworkDto);
+    }
+
 }
