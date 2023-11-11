@@ -18,12 +18,10 @@ public class Enroll {
     // 의존 관계 매핑: member_id(FK)
     @ManyToOne
     @JoinColumn(name = "member_id")
-    @JsonManagedReference
     private Member member;
 
     // 의존 관계 매핑: course_id(FK)
     @ManyToOne
     @JoinColumn(name = "course_id")
-    @JsonManagedReference
     private Course course;
 }
