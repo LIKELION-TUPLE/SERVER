@@ -7,18 +7,22 @@ import likelion.tupl.repository.CourseRepository;
 import likelion.tupl.repository.HomeworkRepository;
 import likelion.tupl.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Service
 @RequiredArgsConstructor
 public class LessonService {
-    LessonRepository lessonRepository;
-    HomeworkRepository homeworkRepository;
-    CourseRepository courseRepository;
+    final LessonRepository lessonRepository;
+    final HomeworkRepository homeworkRepository;
+    final CourseRepository courseRepository;
 
     // create lesson
     public LessonDto createLesson(Long course_id, LessonDto lessonDto) {
         // DB에 저장할 Lesson 객체 생성
         Lesson lesson = new Lesson();
+
+        System.out.println(courseRepository);
 
         // course_id에서 받는 것: course_id
         lesson.setCourse(courseRepository.getById(course_id));
@@ -51,5 +55,3 @@ public class LessonService {
         return lessonDto;
     }
 }
-
-    // 한글 깨짐 test를 위한 주석4
