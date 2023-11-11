@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +37,11 @@ public class CourseController {
     @GetMapping("/course/{courseId}")
     public CourseDto getCourseById(@PathVariable Long courseId) {
         return courseService.getCourseById(courseId);
+    }
+
+    // list all courses
+    @GetMapping("/course/list")
+    public List<CourseDto> listAllCourses() {
+        return courseService.CurrentCourses();
     }
 }
