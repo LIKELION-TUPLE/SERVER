@@ -48,4 +48,6 @@ public class CourseDto {
     private Integer paymentDelayed; // 밀린 입금 횟수
     //    private Boolean wantAlarmTalk; // 알림톡 동의 여부 - 추후 추가
     private Integer totalLessonTime; // 전체 회차
+
+    private String inviteCode; //초대 코드
 }
