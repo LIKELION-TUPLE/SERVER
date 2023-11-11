@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -34,6 +35,12 @@ public class HomeworkController {
     @PutMapping("lessons/homeworks/change-completed/{homework_id}")
     public HomeworkDto changeHomeworkCompleted(@PathVariable Long homework_id, @RequestBody HomeworkDto homeworkDto) {
         return homeworkService.changeHomeworkCompleted(homework_id, homeworkDto);
+    }
+
+    // last homework list: 특정 course_id에 대해서, 가장 최근 회차 수업에 대한 <다음 시간까지 숙제> = 새로운 <수업 일지> 생성 시, <오늘까지 숙제>에 나올 list
+    @GetMapping("lessons/homeworks/last-homeworks-list/{course_id}")
+    public List<HomeworkDto> lastHomeworkList(@PathVariable Long course_id) {
+        return homeworkService.lastHomeworkList(course_id);
     }
 
 }
