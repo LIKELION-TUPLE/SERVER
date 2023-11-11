@@ -2,10 +2,7 @@ package likelion.tupl.dto;
 
 import likelion.tupl.entity.Course;
 import likelion.tupl.entity.DOW;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
