@@ -1,6 +1,7 @@
 package likelion.tupl.service;
 
 import likelion.tupl.dto.HomeworkDto;
+import likelion.tupl.dto.LessonDetailDto;
 import likelion.tupl.dto.LessonDto;
 import likelion.tupl.entity.Course;
 import likelion.tupl.entity.Homework;
@@ -12,15 +13,10 @@ import likelion.tupl.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import javax.swing.text.html.Option;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,15 +41,15 @@ public class LessonService {
         lesson.setPlace(lessonDto.getPlace());
         lesson.setStudyContent(lessonDto.getStudyContent());
 
+        // course에 전체 회차 업데이트
+        Course course = lesson.getCourse();
+        course.setTotalLessonTime(course.getTotalLessonTime() + 1);
+
         // lesson에 추가적으로 저장해야 할 것: 현재 회차
         int totalTime = lesson.getCourse().getTotalLessonTime();
         int paymentCycle = lesson.getCourse().getPaymentCycle();
         int curTime = totalTime % paymentCycle;
         lesson.setCurrentLessonTime(curTime);
-
-        // course에 전체 회차 업데이트
-        Course course = lesson.getCourse();
-        course.setTotalLessonTime(course.getTotalLessonTime() + 1);
 
         // lesson을 저장
         lessonRepository.save(lesson);
@@ -61,6 +57,7 @@ public class LessonService {
         // return할 lessonDto를 업데이트
         lessonDto.setId(lesson.getId());
         lessonDto.setCourseId(lesson.getCourse().getId());
+        lessonDto.setCurrentLessonTime(lesson.getCurrentLessonTime());
 
         return lessonDto;
     }
@@ -70,6 +67,10 @@ public class LessonService {
         // 삭제할 Lesson 객체 가져옴
         Lesson lesson = lessonRepository.findById(lesson_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not exist with id :" + lesson_id));
+
+        // 이 lesson이 포함되는 course의 전체 lesson list를 가져옴
+        List<Lesson> lessonList = lessonRepository.findByCourseId(lesson.getCourse().getId());
+
         // lesson에 딸려 있는 homework 삭제
         List<Homework> homeworkList = homeworkRepository.findByLessonId(lesson_id);
         Iterator<Homework> homeworkIterator = homeworkList.iterator();
@@ -78,14 +79,34 @@ public class LessonService {
             homeworkRepository.delete(homework);
         }
 
-        // lesson 삭제
-        lessonRepository.delete(lesson);
-
         // course에서 totalLessonTime 줄이기
         Course course = courseRepository.getById(lesson.getCourse().getId());
         int totalTime = course.getTotalLessonTime();
         course.setTotalLessonTime(totalTime - 1);
         courseRepository.save(course);
+
+        // 해당 course에서 이 lesson보다 뒤에 생성된 lesson들의 currentLessonTime을 하나씩 줄여줌
+        int targetIndex = -1;
+        for (int i = 0; i < lessonList.size(); i++){
+            if (lessonList.get(i).getId().equals(lesson_id)) {
+                targetIndex = i;
+                break;
+            }
+        }
+        if (targetIndex < lessonList.size() - 1) { // 지우는 게 마지막이 아니면, 뒤에 애들의 currentLessonTime을 하나씩 줄여줘야 함
+            for (int i = targetIndex + 1; i < lessonList.size(); i++) {
+                int curTime = lessonList.get(i).getCurrentLessonTime();
+                if (curTime == 1)
+                    lessonList.get(i).setCurrentLessonTime(course.getPaymentCycle());
+                else {
+                    lessonList.get(i).setCurrentLessonTime(curTime - 1);
+                }
+                lessonRepository.save(lessonList.get(i));
+            }
+        }
+
+        // lesson 삭제
+        lessonRepository.delete(lesson);
 
         Map<String, Boolean> response = new HashMap<>();
         response.put("Lesson-deleted", Boolean.TRUE);
@@ -108,8 +129,84 @@ public class LessonService {
 
         lessonDto.setId(lesson.getId());
         lessonDto.setCourseId(lesson.getCourse().getId());
-        lessonDto.setCurrentLessonTime(lesson.getCurrentLessonTime());
 
         return lessonDto;
+    }
+
+    // lesson detail: lesson_id에 대한 수업 상세 = 수업 일지 전체 내용 (숙제 포함, 현재 회차 포함)
+    public LessonDetailDto lessonDetail(Long lesson_id) {
+
+        Lesson lesson = lessonRepository.findById(lesson_id).get();
+        Course course = lesson.getCourse();
+
+        // 그 코스의 lessonList를 가져옴
+        List<Lesson> lessonList = lessonRepository.findByCourseId(course.getId());
+
+        // 해당 course에서 이 lesson의 index를 가져옴
+        int curLessonIndex = -1;
+        for (int i = 0; i < lessonList.size(); i++){
+            if (lessonList.get(i).getId().equals(lesson_id)) {
+                curLessonIndex = i;
+                break;
+            }
+        }
+
+        // curLessonIndex가 0이 아닐 때 homeworkForTodayList에 값을 채워넣기
+        List<Homework> homeworkForTodayList = new ArrayList<Homework>();
+        if (curLessonIndex == 0) {
+            ;
+        }
+        else {
+            homeworkForTodayList = homeworkRepository.findByLessonId(lessonList.get(curLessonIndex - 1).getId());
+        }
+
+        // homeworkForNextList에 값 채워넣기
+        List<Homework> homeworkForNextList = homeworkRepository.findByLessonId(lesson_id);
+
+        // lessonDetailDto에 담아서 내보내기
+
+        Iterator<Homework> homeworkForTodayIterator = homeworkForTodayList.iterator();
+        Iterator<Homework> homeworkForNextIterator = homeworkForNextList.iterator();
+
+        List<HomeworkDto> homeworkForTodayDtoList = new ArrayList<HomeworkDto>();
+        List<HomeworkDto> homeworkForNextDtoList = new ArrayList<HomeworkDto>();
+
+        while (homeworkForTodayIterator.hasNext()) {
+            Homework homework = homeworkForTodayIterator.next();
+            HomeworkDto homeworkDto = HomeworkDto.builder()
+                    .id(homework.getId())
+                    .lessonId(homework.getLesson().getId())
+                    .completed(homework.getCompleted())
+                    .homeworkContent(homework.getHomeworkContent())
+                    .build();
+            homeworkForTodayDtoList.add(homeworkDto);
+        }
+
+        while (homeworkForNextIterator.hasNext()) {
+            Homework homework = homeworkForNextIterator.next();
+            HomeworkDto homeworkDto = HomeworkDto.builder()
+                    .id(homework.getId())
+                    .lessonId(homework.getLesson().getId())
+                    .completed(homework.getCompleted())
+                    .homeworkContent(homework.getHomeworkContent())
+                    .build();
+            homeworkForNextDtoList.add(homeworkDto);
+        }
+
+        LessonDetailDto lessonDetailDto = new LessonDetailDto();
+        lessonDetailDto.setId(lesson.getId());
+        lessonDetailDto.setDate(lesson.getDate());
+        lessonDetailDto.setStartTime(lesson.getStartTime());
+        lessonDetailDto.setEndTime(lesson.getEndTime());
+        lessonDetailDto.setDow(lesson.getDow());
+        lessonDetailDto.setDow(lesson.getDow());
+        lessonDetailDto.setPlace(lesson.getPlace());
+        lessonDetailDto.setStudyContent(lesson.getStudyContent());
+        lessonDetailDto.setCurrentLessonTime(lesson.getCurrentLessonTime());
+        lessonDetailDto.setCourseId(lesson.getCourse().getId());
+        lessonDetailDto.setHomeworkForTodayList(homeworkForTodayDtoList);
+        lessonDetailDto.setHomeworkForNextList(homeworkForNextDtoList);
+
+        return lessonDetailDto;
     }
 }

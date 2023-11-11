@@ -1,5 +1,6 @@
 package likelion.tupl.controller;
 
+import likelion.tupl.dto.LessonDetailDto;
 import likelion.tupl.dto.LessonDto;
 import likelion.tupl.entity.Lesson;
 import likelion.tupl.repository.HomeworkRepository;
@@ -26,15 +27,22 @@ public class LessonController {
     }
 
     // delete lesson: lesson_id에 대한 lesson 삭제
-    @DeleteMapping("lessons/delete-lesson/{lesson_id}")
+    @DeleteMapping("/lessons/delete-lesson/{lesson_id}")
     public ResponseEntity<Map<String, Boolean>> deleteLesson(@PathVariable Long lesson_id) {
         return lessonService.deleteLesson(lesson_id);
     }
 
     // update lesson: lesson_id에 대한 수정 (숙제 제외)
-    @PutMapping("lessons/update-lesson/{lesson_id}")
+    @PutMapping("/lessons/update-lesson/{lesson_id}")
     LessonDto updateLesson(@PathVariable Long lesson_id, @RequestBody LessonDto lessonDto) {
         return lessonService.updateLesson(lesson_id, lessonDto);
     }
+
+    // lesson detail: lesson_id에 대한 수업 상세 = 수업 일지 전체 내용 (숙제 포함)
+    @GetMapping("/lessons/lesson-detail/{lesson_id}")
+    LessonDetailDto lessonDetail(@PathVariable Long lesson_id){
+        return lessonService.lessonDetail(lesson_id);
+    }
+
 
 }
