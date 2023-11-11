@@ -17,7 +17,7 @@ import javax.websocket.server.PathParam;
 public class LessonController {
     final LessonService lessonService;
 
-    // create lesson
+    // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     @PostMapping("/lessons/{course_id}")
     public LessonDto createLesson(@PathVariable Long course_id, @RequestBody LessonDto lessonDto) {
         return lessonService.createLesson(course_id, lessonDto);

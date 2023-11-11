@@ -17,7 +17,7 @@ public class LessonService {
     final HomeworkRepository homeworkRepository;
     final CourseRepository courseRepository;
 
-    // create lesson
+    // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     public LessonDto createLesson(Long course_id, LessonDto lessonDto) {
         // DB에 저장할 Lesson 객체 생성
         Lesson lesson = new Lesson();
