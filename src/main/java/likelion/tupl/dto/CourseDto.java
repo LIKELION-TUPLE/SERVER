@@ -1,18 +1,19 @@
-package likelion.tupl.entity;
+package likelion.tupl.dto;
 
-import lombok.*;
+import likelion.tupl.entity.Course;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
-@Entity
 @Getter
 @Setter
-@Builder
+@RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
-public class Course {
-
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CourseDto {
     private Long id; // Course ID
 
     private String color; // 대표 색상
@@ -23,10 +24,10 @@ public class Course {
     private String studentPhone; // 학생 폰 번호
     private String parentPhone; // 학부모 폰 번호
     private String subject; // 과외 과목
-    private Integer courseTime; // 수업 시간
+    private Integer courseTime; // 수업 시간 (분)
     private Integer paymentCycle; // 입금 회차
 
     private Integer paymentDelayed; // 밀린 입금 횟수
-//    private Boolean wantAlarmTalk; // 알림톡 동의 여부 - 추후 추가
+    //    private Boolean wantAlarmTalk; // 알림톡 동의 여부 - 추후 추가
     private Integer totalLessonTime; // 전체 회차
 }
