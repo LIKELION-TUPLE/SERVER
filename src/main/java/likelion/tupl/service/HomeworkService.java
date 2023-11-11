@@ -55,4 +55,21 @@ public class HomeworkService {
         response.put("deleted", Boolean.TRUE);
         return ResponseEntity.ok(response);
     }
+
+    // change homework completed: homework_id에 대해서 completed 여부 수정
+    public HomeworkDto changeHomeworkCompleted(Long homework_id, HomeworkDto homeworkDto) {
+        // 수정할 숙제 찾아옴
+        Homework homework = homeworkRepository.findById(homework_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Homework not exist with id :" + homework_id));
+        // 해당 숙제에서 completed 값 변경 후 저장
+        homework.setCompleted(homeworkDto.getCompleted());
+        homeworkRepository.save(homework);
+
+        // homeworkDto에 homework 저장
+        homeworkDto.setLessonId(homework.getLesson().getId());
+        homeworkDto.setHomeworkContent(homework.getHomeworkContent());
+        homeworkDto.setId(homework.getId());
+
+        return homeworkDto;
+    }
 }
