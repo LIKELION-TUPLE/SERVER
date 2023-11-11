@@ -6,6 +6,9 @@ import likelion.tupl.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CourseService {
@@ -112,4 +115,20 @@ public class CourseService {
         }
     }
 
+    // list all courses : 진행 중인 과외 리스트
+    public List<CourseDto> CurrentCourses() {
+        List<Course> courses = courseRepository.findAll();
+
+        // Course 엔티티를 CourseDto로 변경
+        return courses.stream()
+                .map(course -> CourseDto.builder()
+                        .color(course.getColor())
+                        .studentName(course.getStudentName())
+                        .school(course.getSchool())
+                        .studentGrade(course.getStudentGrade())
+                        .subject(course.getSubject())
+                        .totalLessonTime(course.getTotalLessonTime())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }
