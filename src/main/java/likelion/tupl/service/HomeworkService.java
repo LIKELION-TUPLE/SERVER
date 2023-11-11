@@ -56,7 +56,7 @@ public class HomeworkService {
                 .orElseThrow(() -> new ResourceNotFoundException("Homework not exist with id :" + homework_id));
         homeworkRepository.delete(homework);
         Map<String, Boolean> response = new HashMap<>();
-        response.put("deleted", Boolean.TRUE);
+        response.put("Homework-deleted", Boolean.TRUE);
         return ResponseEntity.ok(response);
     }
 
