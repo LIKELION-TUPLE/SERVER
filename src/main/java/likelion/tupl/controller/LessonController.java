@@ -15,7 +15,7 @@ import javax.websocket.server.PathParam;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class LessonController {
-    final LessonService lessonService;
+    final private LessonService lessonService;
 
     // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     @PostMapping("/lessons/{course_id}")
