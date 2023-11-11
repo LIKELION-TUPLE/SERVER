@@ -20,14 +20,13 @@ public class CourseDto {
     private String color; // 대표 색상
 
     @NotNull(message = "이름은 Null 일 수 없습니다!")
-    @Size(min = 1, max = 20, message = "이름은 1 ~ 20자 이여야 합니다!")
+    @Size(min = 1, max = 6, message = "이름은 1 ~ 6자 이여야 합니다!")
     private String studentName; // 학생 이름
 
     @NotNull(message = "나이는 Null 일 수 없습니다!")
     private Integer studentAge; // 학생 나이
 
     @NotNull(message = "학교는 Null 일 수 없습니다!")
-    @Size(min = 1, max = 20, message = "학교는 1 ~ 20자 이여야 합니다!")
     private String school; // 학생 학교
 
     @NotNull(message = "학년은 Null 일 수 없습니다!")
@@ -37,7 +36,7 @@ public class CourseDto {
     private String parentPhone; // 학부모 폰 번호
 
     @NotNull(message = "과목은 Null 일 수 없습니다!")
-    @Size(min = 1, max = 15, message = "과목는 1 ~ 15자 이여야 합니다!")
+    @Size(min = 1, max = 6, message = "과목는 1 ~ 6자 이여야 합니다!")
     private String subject; // 과외 과목
 
     @NotNull(message = "수업 시간은 Null 일 수 없습니다!")
