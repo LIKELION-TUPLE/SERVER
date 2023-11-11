@@ -22,7 +22,7 @@ public class PaymentController {
     }
 
     //course_id에 입금 완료 버튼이 눌렸을 때 -> paymentDelayed -1씩
-    @PostMapping("/payment/{courseId}/complete")
+    @PutMapping("/payment/{courseId}/complete")
     public void newPaymentDelayed(@PathVariable("courseId") Long courseId) {
         paymentService.newPaymentDelayed(courseId);
     }
