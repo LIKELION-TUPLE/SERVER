@@ -13,16 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Service
 @RequiredArgsConstructor
 public class LessonService {
-    final LessonRepository lessonRepository;
-    final HomeworkRepository homeworkRepository;
-    final CourseRepository courseRepository;
+    private final LessonRepository lessonRepository;
+    private final HomeworkRepository homeworkRepository;
+    private final CourseRepository courseRepository;
 
-    // create lesson
+    // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     public LessonDto createLesson(Long course_id, LessonDto lessonDto) {
         // DB에 저장할 Lesson 객체 생성
         Lesson lesson = new Lesson();
-
-        System.out.println(courseRepository);
 
         // course_id에서 받는 것: course_id
         lesson.setCourse(courseRepository.getById(course_id));
@@ -50,7 +48,7 @@ public class LessonService {
 
         // return할 lessonDto를 업데이트
         lessonDto.setId(lesson.getId());
-        lessonDto.setCourseId(course_id);
+        lessonDto.setCourseId(lesson.getCourse().getId());
 
         return lessonDto;
     }

@@ -7,10 +7,9 @@ import org.hibernate.annotations.ColumnDefault;
 import javax.persistence.*;
 
 @Entity
-@Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "homework")
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
 public class Homework {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
