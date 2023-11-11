@@ -31,4 +31,10 @@ public class LessonController {
         return lessonService.deleteLesson(lesson_id);
     }
 
+    // update lesson: lesson_id에 대한 수정 (숙제 제외)
+    @PutMapping("lessons/update-lesson/{lesson_id}")
+    LessonDto updateLesson(@PathVariable Long lesson_id, @RequestBody LessonDto lessonDto) {
+        return lessonService.updateLesson(lesson_id, lessonDto);
+    }
+
 }
