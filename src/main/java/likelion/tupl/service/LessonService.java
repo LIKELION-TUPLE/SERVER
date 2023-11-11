@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
@@ -80,9 +81,35 @@ public class LessonService {
         // lesson 삭제
         lessonRepository.delete(lesson);
 
+        // course에서 totalLessonTime 줄이기
+        Course course = courseRepository.getById(lesson.getCourse().getId());
+        int totalTime = course.getTotalLessonTime();
+        course.setTotalLessonTime(totalTime - 1);
+        courseRepository.save(course);
+
         Map<String, Boolean> response = new HashMap<>();
         response.put("Lesson-deleted", Boolean.TRUE);
 
         return ResponseEntity.ok(response);
+    }
+
+    // update lesson: lesson_id에 대한 수정 (숙제 제외)
+    public LessonDto updateLesson(Long lesson_id, LessonDto lessonDto) {
+        Lesson lesson = lessonRepository.findById(lesson_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not exist with id : " + lesson_id));
+        lesson.setDate(lessonDto.getDate());
+        lesson.setStartTime(lessonDto.getStartTime());
+        lesson.setEndTime(lessonDto.getEndTime());
+        lesson.setDow(lessonDto.getDow());
+        lesson.setPlace(lessonDto.getPlace());
+        lesson.setStudyContent(lessonDto.getStudyContent());
+
+        lessonRepository.save(lesson);
+
+        lessonDto.setId(lesson.getId());
+        lessonDto.setCourseId(lesson.getCourse().getId());
+        lessonDto.setCurrentLessonTime(lesson.getCurrentLessonTime());
+
+        return lessonDto;
     }
 }
