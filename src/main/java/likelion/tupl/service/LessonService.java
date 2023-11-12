@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -215,5 +216,31 @@ public class LessonService {
         lessonDetailDto.setStudentName(course.getStudentName());
 
         return lessonDetailDto;
+    }
+
+
+    // list lessons for a specific year and month : 월별 과외 기록
+    public List<LessonDto> listLessonsByYearAndMonth(Long courseId, int year, int month) {
+        Calendar calendar = new GregorianCalendar(year, month - 1, 1); // Month is zero-based in Calendar
+        Date startDate = calendar.getTime();
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.DATE, -1);
+        Date endDate = calendar.getTime();
+
+        List<Lesson> lessons = lessonRepository.findByCourseIdAndDateBetween(courseId, startDate, endDate);
+
+        // Convert Lesson entities to LessonDto
+        return lessons.stream()
+                .map(lesson -> LessonDto.builder()
+                        .id(lesson.getId())
+                        .date(lesson.getDate())
+                        .dow(lesson.getDow())
+                        .startTime(lesson.getStartTime())
+                        .endTime(lesson.getEndTime())
+                        .place(lesson.getPlace())
+                        .studyContent(lesson.getStudyContent())
+                        .currentLessonTime(lesson.getCurrentLessonTime())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
