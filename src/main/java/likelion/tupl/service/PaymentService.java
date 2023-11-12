@@ -115,7 +115,7 @@ public class PaymentService {
 
         // memberId 불일치시 오류 반환
         if (courses.isEmpty()) {
-            throw new RuntimeException("Member not found");
+            throw new RuntimeException("Member not found with ID: " + memberId);
         }
 
         // Course 엔터티에서 id만 추출하여 리스트화
