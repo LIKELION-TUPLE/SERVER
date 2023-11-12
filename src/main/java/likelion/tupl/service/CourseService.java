@@ -16,7 +16,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     // create course: 과외 추가
-    public String createCourse(CourseDto courseDto) {
+    public CourseDto createCourse(CourseDto courseDto) {
 
         //랜덤 초대코드(generatedCode) 생성 로직
         int leftLimit = 48; // numeral '0'
@@ -52,9 +52,11 @@ public class CourseService {
 
         // return할 courseDto를 업데이트
         courseDto.setId(course.getId());
+        courseDto.setPaymentDelayed(course.getPaymentDelayed());
+        courseDto.setTotalLessonTime(course.getTotalLessonTime());
+        courseDto.setInviteCode(course.getInviteCode());
 
-        return generatedCode;
-        //초대코드 로직 추가 필요
+        return courseDto;
     }
 
     // delete course: 과외 삭제

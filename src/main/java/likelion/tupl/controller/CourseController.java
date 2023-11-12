@@ -17,7 +17,7 @@ public class CourseController {
 
     // create course: 과외 추가에서 입력 받아서 저장
     @PostMapping("/course/create")
-    public String createCourse(@Validated @RequestBody CourseDto courseDto) {
+    public CourseDto createCourse(@Validated @RequestBody CourseDto courseDto) {
         return courseService.createCourse(courseDto);
     }
 
