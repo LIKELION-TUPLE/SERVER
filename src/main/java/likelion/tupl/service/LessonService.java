@@ -129,6 +129,7 @@ public class LessonService {
 
         lessonDto.setId(lesson.getId());
         lessonDto.setCourseId(lesson.getCourse().getId());
+        lessonDto.setCurrentLessonTime(lesson.getCurrentLessonTime());
 
         return lessonDto;
     }
