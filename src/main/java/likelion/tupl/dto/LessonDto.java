@@ -12,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class LessonDto {
