@@ -72,8 +72,8 @@ public class PaymentService {
 
         } else if (payDel == 1) {
             // cycle의 첫번째, 마지막 날짜를 Dto에 저장
-            paymentBlockDto.setDate1(lessons.get(lessons.size()-payCycle*payDel).getDate());
-            paymentBlockDto.setDate2(lessons.get(lessons.size() - 1).getDate());
+            paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
+            paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle)-1).getDate());
 
             // date3, date4, date5, date6에 null 설정
             paymentBlockDto.setDate3(null);
@@ -83,10 +83,10 @@ public class PaymentService {
 
         } else if (payDel == 2) {
             // cycle 두 개의 첫번째, 마지막 날짜를 Dto에 저장
-            paymentBlockDto.setDate1(lessons.get(lessons.size()-payCycle*payDel--).getDate());
-            paymentBlockDto.setDate2(lessons.get(lessons.size() - payCycle*payDel -1).getDate());
-            paymentBlockDto.setDate3(lessons.get(lessons.size()-payCycle*payDel).getDate());
-            paymentBlockDto.setDate4(lessons.get(lessons.size() - 1).getDate());
+            paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-2)).getDate());
+            paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle-1)-1).getDate());
+            paymentBlockDto.setDate3(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
+            paymentBlockDto.setDate4(lessons.get(payCycle*(lessons.size()/payCycle)-1).getDate());
 
             // date5, date6에 null 설정
             paymentBlockDto.setDate5(null);
@@ -94,12 +94,12 @@ public class PaymentService {
 
         } else if (payDel == 3) {
             // cycle 세 개의 첫번째, 마지막 날짜를 Dto에 저장
-            paymentBlockDto.setDate1(lessons.get(lessons.size()-payCycle*payDel--).getDate());
-            paymentBlockDto.setDate2(lessons.get(lessons.size() - payCycle*payDel -1).getDate());            paymentBlockDto.setDate1(lessons.get(lessons.size()-payCycle*payDel--).getDate());
-            paymentBlockDto.setDate3(lessons.get(lessons.size() - payCycle*payDel--).getDate());
-            paymentBlockDto.setDate4(lessons.get(lessons.size()-payCycle*payDel -1).getDate());
-            paymentBlockDto.setDate5(lessons.get(lessons.size()-payCycle*payDel).getDate());
-            paymentBlockDto.setDate6(lessons.get(lessons.size() - 1).getDate());
+            paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-3)).getDate());
+            paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle-2)-1).getDate());          paymentBlockDto.setDate1(lessons.get(lessons.size()-payCycle*payDel--).getDate());
+            paymentBlockDto.setDate3(lessons.get(payCycle*(lessons.size()/payCycle-2)).getDate());
+            paymentBlockDto.setDate4(lessons.get(payCycle*(lessons.size()/payCycle-1)-1).getDate());
+            paymentBlockDto.setDate5(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
+            paymentBlockDto.setDate6(lessons.get(payCycle*(lessons.size()/payCycle)-1).getDate());
         }
 
         return paymentBlockDto;
