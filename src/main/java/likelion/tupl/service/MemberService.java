@@ -1,5 +1,6 @@
 package likelion.tupl.service;
 
+import likelion.tupl.dto.LoginIdDto;
 import likelion.tupl.dto.MemberDto;
 import likelion.tupl.entity.Member;
 import likelion.tupl.entity.Role;
@@ -29,7 +30,7 @@ public class MemberService {
                 .name(memberDto.getName())
                 .phone(memberDto.getPhone())
                 .birthDate(memberDto.getBirthDate())
-                .role(Role.STUDENT)
+                .role(Role.ROLE_STUDENT)
                 .build();
 
         return MemberDto.toEntity(memberRepository.save(member));
@@ -46,9 +47,17 @@ public class MemberService {
                 .name(memberDto.getName())
                 .phone(memberDto.getPhone())
                 .birthDate(memberDto.getBirthDate())
-                .role(Role.TEACHER)
+                .role(Role.ROLE_TEACHER)
                 .build();
 
         return MemberDto.toEntity(memberRepository.save(member));
+    }
+
+    // 로그인 아이디 중복 체크
+    public String duplicateLoginId(LoginIdDto loginIdDto){
+        if (memberRepository.findOneByLoginId(loginIdDto.getLoginId()).orElse(null) != null){
+            return "true";
+        }
+        else return "false";
     }
 }

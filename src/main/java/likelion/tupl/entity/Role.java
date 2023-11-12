@@ -1,5 +1,5 @@
 package likelion.tupl.entity;
 
 public enum Role {
-    STUDENT, TEACHER
+    ROLE_STUDENT, ROLE_TEACHER
 }
