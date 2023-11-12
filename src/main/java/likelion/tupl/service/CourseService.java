@@ -16,7 +16,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     // create course: 과외 추가
-    public String createCourse(CourseDto courseDto) {
+    public CourseDto createCourse(CourseDto courseDto) {
 
         //랜덤 초대코드(generatedCode) 생성 로직
         int leftLimit = 48; // numeral '0'
@@ -52,9 +52,11 @@ public class CourseService {
 
         // return할 courseDto를 업데이트
         courseDto.setId(course.getId());
+        courseDto.setPaymentDelayed(course.getPaymentDelayed());
+        courseDto.setTotalLessonTime(course.getTotalLessonTime());
+        courseDto.setInviteCode(course.getInviteCode());
 
-        return generatedCode;
-        //초대코드 로직 추가 필요
+        return courseDto;
     }
 
     // delete course: 과외 삭제
@@ -91,6 +93,12 @@ public class CourseService {
             // 변경 후 저장
             courseRepository.save(existingCourse);
 
+            // return할 courseDto를 업데이트
+            updatedCourseDto.setId(existingCourse.getId());
+            updatedCourseDto.setPaymentDelayed(existingCourse.getPaymentDelayed());
+            updatedCourseDto.setTotalLessonTime(existingCourse.getTotalLessonTime());
+            updatedCourseDto.setInviteCode(existingCourse.getInviteCode());
+
             // 업데이트한 정보 return
             return updatedCourseDto;
         } else {
@@ -121,6 +129,7 @@ public class CourseService {
                     .paymentCycle(course.getPaymentCycle())
                     .paymentDelayed(course.getPaymentDelayed())
                     .totalLessonTime(course.getTotalLessonTime())
+                    .inviteCode(course.getInviteCode())
                     .build();
         } else {
             // 없는 Course ID를 입력한 경우

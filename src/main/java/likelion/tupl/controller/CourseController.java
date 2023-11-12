@@ -11,13 +11,13 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+
 public class CourseController {
     final private CourseService courseService;
 
     // create course: 과외 추가에서 입력 받아서 저장
     @PostMapping("/course/create")
-    public String createCourse(@Validated @RequestBody CourseDto courseDto) {
+    public CourseDto createCourse(@Validated @RequestBody CourseDto courseDto) {
         return courseService.createCourse(courseDto);
     }
 
