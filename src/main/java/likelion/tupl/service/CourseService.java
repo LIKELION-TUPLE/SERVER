@@ -1,6 +1,7 @@
 package likelion.tupl.service;
 
 import likelion.tupl.dto.CourseDto;
+import likelion.tupl.dto.InviteCodeDto;
 import likelion.tupl.entity.Course;
 import likelion.tupl.entity.Enroll;
 import likelion.tupl.entity.Member;
@@ -8,13 +9,15 @@ import likelion.tupl.repository.CourseRepository;
 import likelion.tupl.repository.EnrollRepository;
 import likelion.tupl.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,8 +69,8 @@ public class CourseService {
         courseDto.setInviteCode(course.getInviteCode());
 
         // 로그인한 멤버 정보 가져오기
-        Object pricipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetails userDetails = (UserDetails) pricipal;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
         String username = userDetails.getUsername();
         Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
         Member member = optionalMember.get();
@@ -177,4 +180,34 @@ public class CourseService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    // student create course: 로그인한 학생에게 초대 코드 받아서 과외 등록
+    @PostMapping("/course/student-create")
+    public ResponseEntity<Map<String, Boolean>> studentCreateCourse(InviteCodeDto inviteCodeDto) {
+        // 등록할 과외 객체 불러오기
+        Course course = courseRepository.findByInviteCode(inviteCodeDto.getInviteCode());
+
+        // 로그인한 멤버 정보 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
+        // Enroll에 과외 정보 저장
+
+        Enroll enroll = Enroll.builder()
+                .course(course)
+                .member(member)
+                .build();
+        enrollRepository.save(enroll);
+
+        // 등록 완료 response
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("Enroll-success", Boolean.TRUE);
+
+        return ResponseEntity.ok(response);
+    }
+
+
 }
