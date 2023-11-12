@@ -10,7 +10,6 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class PaymentController {
 
     private final PaymentService paymentService;

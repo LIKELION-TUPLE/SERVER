@@ -24,6 +24,12 @@ public class PaymentService {
     @Autowired
     private final CourseRepository courseRepository;
 
+    // input받은 lessonId를 db에서 못찾았을 경우 고려한 함수
+    private Lesson getLessonById(Long lessonId) {
+        Optional<Lesson> optionalLesson = lessonRepository.findById(lessonId);
+        return optionalLesson.orElseThrow(() -> new RuntimeException("Lesson not found with ID: " + lessonId));
+    }
+
     // input받은 courseId를 db에서 못찾았을 경우 고려한 함수
     private Course getCourseById(Long courseId) {
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
@@ -37,13 +43,13 @@ public class PaymentService {
     public PaymentBlockDto createPaymentBlock(Long courseId) {
 
         // 입력 받은 courseId로 course의 paymentCycle 값 가져오기
-        Integer payCycle = getCourseById(courseId).getPaymentCycle();
+        int payCycle = getCourseById(courseId).getPaymentCycle();
 
         // 입력 받은 courseId로 course의 paymentDelayed 값 가져오기
-        Integer payDel = getCourseById(courseId).getPaymentDelayed();
+        int payDel = getCourseById(courseId).getPaymentDelayed();
 
         // 입력 받은 courseId로 전체 lesson 가져오기
-        List<Lesson> lessons = lessonRepository.findAllByCourseId(courseId);
+        List<Lesson> lessons = lessonRepository.findByCourseId(courseId);
 
         // courseId 불일치시 오류 반환
         if (lessons.isEmpty()) {
@@ -125,31 +131,24 @@ public class PaymentService {
     }
 
     /**
-     * paymentDelayed 변수 생성
+     * 입금 확인 눌렀을 때 paymentDelayed 변수 수정
      */
 
-    /**
-     * paymentDelayed 변수 저장
-     */
-
-
-    /**
-     * paymentDelayed 변수 수정
-     */
-
-    public void newPaymentDelayed(Long courseId) {
+    public Integer newPaymentDelayed(Long courseId) {
         // 입력 받은 CourseId로 course의 paymentDelayed 값 가져오기 (course 없으면 오류 반환)
         Course course = getCourseById(courseId);
-        Integer payDel = course.getPaymentDelayed();
+        int payDel = course.getPaymentDelayed();
 
         // 새로운 paymentDelayed 값 계산
-        Integer newPayDel = payDel - 1;
+        int newPayDel = payDel - 1;
 
         // course 엔터티에 새로운 paymentDelayed 값 설정
         course.setPaymentDelayed(newPayDel);
 
         // course 엔터티를 저장하여 데이터베이스 업데이트
         courseRepository.save(course);
+
+        return newPayDel;
 
     }
 
