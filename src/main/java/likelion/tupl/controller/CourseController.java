@@ -26,8 +26,8 @@ public class CourseController {
 
     // delete course: 과외 삭제
     @DeleteMapping("/course/delete/{courseId}")
-    public void deleteCourse(@PathVariable Long courseId) {
-        courseService.deleteCourse(courseId);
+    public ResponseEntity<Map<String, Boolean>> deleteCourse(@PathVariable Long courseId) {
+        return courseService.deleteCourse(courseId);
     }
 
     // update course: 과외 수정

@@ -87,11 +87,25 @@ public class CourseService {
     }
 
     // delete course: 과외 삭제
-    public void deleteCourse(Long courseId) {
+    public ResponseEntity<Map<String, Boolean>> deleteCourse(Long courseId) {
+        // response 객체
+        Map<String, Boolean> response = new HashMap<>();
+
         // Course ID가 있는지 체크
         if (courseRepository.existsById(courseId)) {
             // 있으면 삭제
+            // Enroll에서 삭제
+            List<Enroll> enrollList = enrollRepository.findByCourseId(courseId);
+            for(int i = 0; i <enrollList.size(); i++){
+                enrollRepository.delete(enrollList.get(i));
+            }
+            // course에서 삭제
             courseRepository.deleteById(courseId);
+
+            // response
+            response.put("Course-deleted", Boolean.TRUE);
+            return ResponseEntity.ok(response);
+
         } else {
             // 없는 Course ID를 입력한 경우
             throw new IllegalArgumentException("Course not found with ID: " + courseId);
@@ -182,31 +196,40 @@ public class CourseService {
     }
 
     // student create course: 로그인한 학생에게 초대 코드 받아서 과외 등록
-    @PostMapping("/course/student-create")
     public ResponseEntity<Map<String, Boolean>> studentCreateCourse(InviteCodeDto inviteCodeDto) {
+
         // 등록할 과외 객체 불러오기
         Course course = courseRepository.findByInviteCode(inviteCodeDto.getInviteCode());
 
-        // 로그인한 멤버 정보 가져오기
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetails userDetails = (UserDetails) principal;
-        String username = userDetails.getUsername();
-        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
-        Member member = optionalMember.get();
+        // 과외 정보가 없으면 등록 X
+        if (course == null) {
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("Enroll-success", Boolean.FALSE);
 
-        // Enroll에 과외 정보 저장
+            return ResponseEntity.ok(response);
+        }
+        else {
+            // 로그인한 멤버 정보 가져오기
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetails userDetails = (UserDetails) principal;
+            String username = userDetails.getUsername();
+            Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+            Member member = optionalMember.get();
 
-        Enroll enroll = Enroll.builder()
-                .course(course)
-                .member(member)
-                .build();
-        enrollRepository.save(enroll);
+            // Enroll에 과외 정보 저장
 
-        // 등록 완료 response
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("Enroll-success", Boolean.TRUE);
+            Enroll enroll = Enroll.builder()
+                    .course(course)
+                    .member(member)
+                    .build();
+            enrollRepository.save(enroll);
 
-        return ResponseEntity.ok(response);
+            // 등록 완료 response
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("Enroll-success", Boolean.TRUE);
+
+            return ResponseEntity.ok(response);
+        }
     }
 
 
