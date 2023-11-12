@@ -2,11 +2,18 @@ package likelion.tupl.service;
 
 import likelion.tupl.dto.CourseDto;
 import likelion.tupl.entity.Course;
+import likelion.tupl.entity.Enroll;
+import likelion.tupl.entity.Member;
 import likelion.tupl.repository.CourseRepository;
+import likelion.tupl.repository.EnrollRepository;
+import likelion.tupl.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -14,6 +21,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
+    private final EnrollRepository enrollRepository;
+    private final MemberRepository memberRepository;
 
     // create course: 과외 추가
     public CourseDto createCourse(CourseDto courseDto) {
@@ -55,6 +64,21 @@ public class CourseService {
         courseDto.setPaymentDelayed(course.getPaymentDelayed());
         courseDto.setTotalLessonTime(course.getTotalLessonTime());
         courseDto.setInviteCode(course.getInviteCode());
+
+        // 로그인한 멤버 정보 가져오기
+        Object pricipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) pricipal;
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
+        // Enroll에 과외 정보 저장
+
+        Enroll enroll = Enroll.builder()
+                .course(course)
+                .member(member)
+                .build();
+        enrollRepository.save(enroll);
 
         return courseDto;
     }
