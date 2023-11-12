@@ -125,6 +125,15 @@ public class PaymentService {
     }
 
     /**
+     * paymentDelayed 변수 생성
+     */
+
+    /**
+     * paymentDelayed 변수 저장
+     */
+
+
+    /**
      * paymentDelayed 변수 수정
      */
 
