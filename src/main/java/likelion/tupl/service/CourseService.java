@@ -1,19 +1,31 @@
 package likelion.tupl.service;
 
 import likelion.tupl.dto.CourseDto;
+import likelion.tupl.dto.InviteCodeDto;
 import likelion.tupl.entity.Course;
+import likelion.tupl.entity.Enroll;
+import likelion.tupl.entity.Member;
 import likelion.tupl.repository.CourseRepository;
+import likelion.tupl.repository.EnrollRepository;
+import likelion.tupl.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
+    private final EnrollRepository enrollRepository;
+    private final MemberRepository memberRepository;
 
     // create course: 과외 추가
     public CourseDto createCourse(CourseDto courseDto) {
@@ -56,15 +68,44 @@ public class CourseService {
         courseDto.setTotalLessonTime(course.getTotalLessonTime());
         courseDto.setInviteCode(course.getInviteCode());
 
+        // 로그인한 멤버 정보 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
+        // Enroll에 과외 정보 저장
+
+        Enroll enroll = Enroll.builder()
+                .course(course)
+                .member(member)
+                .build();
+        enrollRepository.save(enroll);
+
         return courseDto;
     }
 
     // delete course: 과외 삭제
-    public void deleteCourse(Long courseId) {
+    public ResponseEntity<Map<String, Boolean>> deleteCourse(Long courseId) {
+        // response 객체
+        Map<String, Boolean> response = new HashMap<>();
+
         // Course ID가 있는지 체크
         if (courseRepository.existsById(courseId)) {
             // 있으면 삭제
+            // Enroll에서 삭제
+            List<Enroll> enrollList = enrollRepository.findByCourseId(courseId);
+            for(int i = 0; i <enrollList.size(); i++){
+                enrollRepository.delete(enrollList.get(i));
+            }
+            // course에서 삭제
             courseRepository.deleteById(courseId);
+
+            // response
+            response.put("Course-deleted", Boolean.TRUE);
+            return ResponseEntity.ok(response);
+
         } else {
             // 없는 Course ID를 입력한 경우
             throw new IllegalArgumentException("Course not found with ID: " + courseId);
@@ -153,4 +194,43 @@ public class CourseService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    // student create course: 로그인한 학생에게 초대 코드 받아서 과외 등록
+    public ResponseEntity<Map<String, Boolean>> studentCreateCourse(InviteCodeDto inviteCodeDto) {
+
+        // 등록할 과외 객체 불러오기
+        Course course = courseRepository.findByInviteCode(inviteCodeDto.getInviteCode());
+
+        // 과외 정보가 없으면 등록 X
+        if (course == null) {
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("Enroll-success", Boolean.FALSE);
+
+            return ResponseEntity.ok(response);
+        }
+        else {
+            // 로그인한 멤버 정보 가져오기
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetails userDetails = (UserDetails) principal;
+            String username = userDetails.getUsername();
+            Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+            Member member = optionalMember.get();
+
+            // Enroll에 과외 정보 저장
+
+            Enroll enroll = Enroll.builder()
+                    .course(course)
+                    .member(member)
+                    .build();
+            enrollRepository.save(enroll);
+
+            // 등록 완료 response
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("Enroll-success", Boolean.TRUE);
+
+            return ResponseEntity.ok(response);
+        }
+    }
+
+
 }
