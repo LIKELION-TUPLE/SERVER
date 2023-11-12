@@ -93,6 +93,12 @@ public class CourseService {
             // 변경 후 저장
             courseRepository.save(existingCourse);
 
+            // return할 courseDto를 업데이트
+            updatedCourseDto.setId(existingCourse.getId());
+            updatedCourseDto.setPaymentDelayed(existingCourse.getPaymentDelayed());
+            updatedCourseDto.setTotalLessonTime(existingCourse.getTotalLessonTime());
+            updatedCourseDto.setInviteCode(existingCourse.getInviteCode());
+
             // 업데이트한 정보 return
             return updatedCourseDto;
         } else {
@@ -123,6 +129,7 @@ public class CourseService {
                     .paymentCycle(course.getPaymentCycle())
                     .paymentDelayed(course.getPaymentDelayed())
                     .totalLessonTime(course.getTotalLessonTime())
+                    .inviteCode(course.getInviteCode())
                     .build();
         } else {
             // 없는 Course ID를 입력한 경우
