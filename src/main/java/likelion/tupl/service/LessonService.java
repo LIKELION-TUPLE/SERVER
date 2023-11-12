@@ -207,6 +207,12 @@ public class LessonService {
         lessonDetailDto.setHomeworkForTodayList(homeworkForTodayDtoList);
         lessonDetailDto.setHomeworkForNextList(homeworkForNextDtoList);
 
+        lessonDetailDto.setColor(course.getColor());
+        lessonDetailDto.setSchool(course.getSchool());
+        lessonDetailDto.setStudentGrade(course.getStudentGrade());
+        lessonDetailDto.setSubject(course.getSubject());
+        lessonDetailDto.setStudentName(course.getStudentName());
+
         return lessonDetailDto;
     }
 }
