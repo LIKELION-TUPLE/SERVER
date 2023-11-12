@@ -44,7 +44,15 @@ public class LessonService {
 
         // course에 전체 회차 업데이트
         Course course = lesson.getCourse();
-        course.setTotalLessonTime(course.getTotalLessonTime() + 1);
+        int totalLessonTime = course.getTotalLessonTime();
+        int updatedTotalLessonTime = totalLessonTime+ 1;
+        course.setTotalLessonTime(updatedTotalLessonTime);
+
+        // course에서 paymentDelayed 업데이트
+        int payCycle = course.getPaymentCycle();
+        int updatedPayDel = updatedTotalLessonTime / payCycle;
+        course.setPaymentDelayed(updatedPayDel);
+        courseRepository.save(course);
 
         // lesson에 추가적으로 저장해야 할 것: 현재 회차
         int totalTime = lesson.getCourse().getTotalLessonTime();
@@ -82,8 +90,15 @@ public class LessonService {
 
         // course에서 totalLessonTime 줄이기
         Course course = courseRepository.getById(lesson.getCourse().getId());
-        int totalTime = course.getTotalLessonTime();
-        course.setTotalLessonTime(totalTime - 1);
+        int totalLessonTime = course.getTotalLessonTime();
+        int deletedTotalLessonTime = totalLessonTime - 1;
+        course.setTotalLessonTime(deletedTotalLessonTime);
+        courseRepository.save(course);
+
+        // course에서 paymentDelayed 업데이트
+        Integer payCycle = course.getPaymentCycle();
+        Integer updatedPayDel = deletedTotalLessonTime / payCycle;
+        course.setPaymentDelayed(updatedPayDel);
         courseRepository.save(course);
 
         // 해당 course에서 이 lesson보다 뒤에 생성된 lesson들의 currentLessonTime을 하나씩 줄여줌
