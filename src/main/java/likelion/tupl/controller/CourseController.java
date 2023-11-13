@@ -61,6 +61,5 @@ public class CourseController {
         return courseService.courseListForCreateLesson();
     }
 
-    // course list: 진행 중인 과외
 
 }
