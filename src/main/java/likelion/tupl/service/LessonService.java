@@ -6,10 +6,7 @@ import likelion.tupl.dto.LessonDto;
 import likelion.tupl.dto.SimpleCourseDto;
 import likelion.tupl.entity.*;
 import likelion.tupl.exception.ResourceNotFoundException;
-import likelion.tupl.repository.CourseRepository;
-import likelion.tupl.repository.HomeworkRepository;
-import likelion.tupl.repository.LessonRepository;
-import likelion.tupl.repository.MemberRepository;
+import likelion.tupl.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +24,7 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final HomeworkRepository homeworkRepository;
     private final CourseRepository courseRepository;
+    private final EnrollRepository enrollRepository;
 
 
     // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
@@ -185,8 +183,7 @@ public class LessonService {
         // homeworkForNextList에 값 채워넣기
         List<Homework> homeworkForNextList = homeworkRepository.findByLessonId(lesson_id);
 
-        // lessonDetailDto에 담아서 내보내기
-
+        // 숙제들을 HomeworkList들에 담기
         Iterator<Homework> homeworkForTodayIterator = homeworkForTodayList.iterator();
         Iterator<Homework> homeworkForNextIterator = homeworkForNextList.iterator();
 
@@ -215,6 +212,16 @@ public class LessonService {
             homeworkForNextDtoList.add(homeworkDto);
         }
 
+        // 선생님 이름 찾기
+        String teacherName = new String();
+        List<Enroll> enrollList = enrollRepository.findByCourseId(course.getId());
+        for (int i = 0; i <enrollList.size(); i++) {
+            Member enrollMember = enrollList.get(i).getMember();
+            if (enrollMember.getRole() == Role.ROLE_TEACHER)
+                teacherName = enrollMember.getName();
+        }
+
+
         LessonDetailDto lessonDetailDto = new LessonDetailDto();
         lessonDetailDto.setId(lesson.getId());
         lessonDetailDto.setDate(lesson.getDate());
@@ -234,6 +241,7 @@ public class LessonService {
         lessonDetailDto.setStudentGrade(course.getStudentGrade());
         lessonDetailDto.setSubject(course.getSubject());
         lessonDetailDto.setStudentName(course.getStudentName());
+        lessonDetailDto.setTeacherName(teacherName);
 
         return lessonDetailDto;
     }
