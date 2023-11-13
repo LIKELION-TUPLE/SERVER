@@ -2,6 +2,7 @@ package likelion.tupl.controller;
 
 import likelion.tupl.dto.CourseDto;
 import likelion.tupl.dto.InviteCodeDto;
+import likelion.tupl.dto.SimpleCourseDto;
 import likelion.tupl.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +53,17 @@ public class CourseController {
     @PostMapping("/course/student-create")
     public ResponseEntity<Map<String, Boolean>> studentCreateCourse(@Validated @RequestBody InviteCodeDto inviteCodeDto) {
         return courseService.studentCreateCourse(inviteCodeDto);
+    }
+
+    // course list for create lesson: 로그인한 선생님이 수업 일지 추가 시 선택할 수 있는 과외 리스트
+    @GetMapping("course/course-list-for-create")
+    public List<SimpleCourseDto> courseListForCreateLesson() {
+        return courseService.courseListForCreateLesson();
+    }
+
+    // course list: 로그인한 유저(선생님/학생)가 등록한 과외 리스트
+    @GetMapping("course/course-list")
+    public List<SimpleCourseDto> courseList() {
+        return courseService.courseList();
     }
 }

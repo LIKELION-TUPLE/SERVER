@@ -3,15 +3,14 @@ package likelion.tupl.service;
 import likelion.tupl.dto.HomeworkDto;
 import likelion.tupl.dto.LessonDetailDto;
 import likelion.tupl.dto.LessonDto;
-import likelion.tupl.entity.Course;
-import likelion.tupl.entity.Homework;
-import likelion.tupl.entity.Lesson;
+import likelion.tupl.dto.SimpleCourseDto;
+import likelion.tupl.entity.*;
 import likelion.tupl.exception.ResourceNotFoundException;
-import likelion.tupl.repository.CourseRepository;
-import likelion.tupl.repository.HomeworkRepository;
-import likelion.tupl.repository.LessonRepository;
+import likelion.tupl.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +24,8 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final HomeworkRepository homeworkRepository;
     private final CourseRepository courseRepository;
+    private final EnrollRepository enrollRepository;
+
 
     // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     public LessonDto createLesson(Long course_id, LessonDto lessonDto) {
@@ -48,11 +49,12 @@ public class LessonService {
         int updatedTotalLessonTime = totalLessonTime+ 1;
         course.setTotalLessonTime(updatedTotalLessonTime);
 
-        // course에서 paymentDelayed 업데이트
+        // course에서 paymentDelayed 업데이트: 전체 회차가 cycle의 배수가 되면 paymentDelayed++
         int payCycle = course.getPaymentCycle();
-        int updatedPayDel = updatedTotalLessonTime / payCycle;
-        course.setPaymentDelayed(updatedPayDel);
-        courseRepository.save(course);
+        if (updatedTotalLessonTime % payCycle == 0) {
+            course.setPaymentDelayed(course.getPaymentDelayed() + 1);
+            courseRepository.save(course);
+        }
 
         // lesson에 추가적으로 저장해야 할 것: 현재 회차
         int totalTime = lesson.getCourse().getTotalLessonTime();
@@ -95,11 +97,12 @@ public class LessonService {
         course.setTotalLessonTime(deletedTotalLessonTime);
         courseRepository.save(course);
 
-        // course에서 paymentDelayed 업데이트
+        // course에서 paymentDelayed 업데이트: (지우기 전의) totalLessonTime이 cycle의 배수가 되면 paymentDelayed--
         Integer payCycle = course.getPaymentCycle();
-        Integer updatedPayDel = deletedTotalLessonTime / payCycle;
-        course.setPaymentDelayed(updatedPayDel);
-        courseRepository.save(course);
+        if (totalLessonTime % payCycle == 0) {
+            course.setPaymentDelayed(course.getPaymentDelayed() - 1);
+            courseRepository.save(course);
+        }
 
         // 해당 course에서 이 lesson보다 뒤에 생성된 lesson들의 currentLessonTime을 하나씩 줄여줌
         int targetIndex = -1;
@@ -180,8 +183,7 @@ public class LessonService {
         // homeworkForNextList에 값 채워넣기
         List<Homework> homeworkForNextList = homeworkRepository.findByLessonId(lesson_id);
 
-        // lessonDetailDto에 담아서 내보내기
-
+        // 숙제들을 HomeworkList들에 담기
         Iterator<Homework> homeworkForTodayIterator = homeworkForTodayList.iterator();
         Iterator<Homework> homeworkForNextIterator = homeworkForNextList.iterator();
 
@@ -210,6 +212,16 @@ public class LessonService {
             homeworkForNextDtoList.add(homeworkDto);
         }
 
+        // 선생님 이름 찾기
+        String teacherName = new String();
+        List<Enroll> enrollList = enrollRepository.findByCourseId(course.getId());
+        for (int i = 0; i <enrollList.size(); i++) {
+            Member enrollMember = enrollList.get(i).getMember();
+            if (enrollMember.getRole() == Role.ROLE_TEACHER)
+                teacherName = enrollMember.getName();
+        }
+
+
         LessonDetailDto lessonDetailDto = new LessonDetailDto();
         lessonDetailDto.setId(lesson.getId());
         lessonDetailDto.setDate(lesson.getDate());
@@ -229,6 +241,7 @@ public class LessonService {
         lessonDetailDto.setStudentGrade(course.getStudentGrade());
         lessonDetailDto.setSubject(course.getSubject());
         lessonDetailDto.setStudentName(course.getStudentName());
+        lessonDetailDto.setTeacherName(teacherName);
 
         return lessonDetailDto;
     }
@@ -258,4 +271,6 @@ public class LessonService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
 }
