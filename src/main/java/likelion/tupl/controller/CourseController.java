@@ -56,10 +56,14 @@ public class CourseController {
     }
 
     // course list for create lesson: 로그인한 선생님이 수업 일지 추가 시 선택할 수 있는 과외 리스트
-    @GetMapping("course/course-list-for-create/")
+    @GetMapping("course/course-list-for-create")
     public List<SimpleCourseDto> courseListForCreateLesson() {
         return courseService.courseListForCreateLesson();
     }
 
-
+    // course list: 로그인한 유저(선생님/학생)가 등록한 과외 리스트
+    @GetMapping("course/course-list")
+    public List<SimpleCourseDto> courseList() {
+        return courseService.courseList();
+    }
 }

@@ -6,6 +6,7 @@ import likelion.tupl.dto.SimpleCourseDto;
 import likelion.tupl.entity.Course;
 import likelion.tupl.entity.Enroll;
 import likelion.tupl.entity.Member;
+import likelion.tupl.entity.Role;
 import likelion.tupl.repository.CourseRepository;
 import likelion.tupl.repository.EnrollRepository;
 import likelion.tupl.repository.MemberRepository;
@@ -267,6 +268,74 @@ public class CourseService {
                             .teacherName(teacher.getName())
                             .subject(course.getSubject())
                             .currentLessonTime(course.getTotalLessonTime() % course.getPaymentCycle() + 1)
+                            .build()
+            );
+        }
+
+        return simpleCourseDtoList;
+    }
+
+    // course list: 로그인한 유저(선생님/학생)가 등록한 과외 리스트
+    public List<SimpleCourseDto> courseList() {
+        // 로그인한 유저 정보 가져옴
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
+        // 로그인한 유저가 등록하고 있는 Enroll 가져옴
+        List<Enroll> enrollList = enrollRepository.findByMemberId(member.getId());
+
+        // 그 Enroll에 대한 CourseList 가져옴
+        List<Course> courseList = new ArrayList<Course>();
+        for (int i = 0; i < enrollList.size(); i++){
+            Optional<Course> courseOptional = courseRepository.findById(enrollList.get(i).getCourse().getId());
+            courseList.add(courseOptional.get());
+        }
+
+        // 그 Course에 대한 정보를 SimpleCourseDto에 담아서 내보냄
+        List<SimpleCourseDto> simpleCourseDtoList = new ArrayList<SimpleCourseDto>();
+        for (int i = 0; i < courseList.size(); i++) {
+            Course course = courseList.get(i);
+
+            // teacherName 가져오기
+            String teacherName = new String();
+            if (member.getRole() == Role.ROLE_TEACHER) { // 로그인한 유저가 선생님이면, 선생님 이름 저장
+                teacherName = member.getName();
+            }
+            else { // 로그인한 유저가 선생님이 아니면, Enroll에서 선생님 찾아옴
+                List<Enroll> courseEnrollList = enrollRepository.findByCourseId(course.getId()); // 그 course에 대한 등록 정보 가져옴
+                for (int j = 0; j < courseEnrollList.size(); j++) {
+                    Enroll courseEnroll = courseEnrollList.get(j);
+                    if (courseEnroll.getMember().getRole() == Role.ROLE_TEACHER) // 등록한 사람이 선생님이면 이름을 저장함
+                        teacherName = courseEnroll.getMember().getName();
+                }
+            }
+
+            // 현재 회차 계산
+            int currentLessonTime;
+            if (course.getTotalLessonTime() == 0) { // 전체 회차가 0이면 0
+                currentLessonTime = 0;
+            }
+            else if (course.getTotalLessonTime() % course.getPaymentCycle() == 0) { // cycle의 배수면 cycle과 같음
+                currentLessonTime = course.getPaymentCycle();
+            }
+            else { // 둘다 아니면 나머지
+                currentLessonTime = course.getTotalLessonTime() % course.getPaymentCycle();
+            }
+
+            simpleCourseDtoList.add(
+                    SimpleCourseDto.builder()
+                            .course_id(course.getId())
+                            .color(course.getColor())
+                            .studentName(course.getStudentName())
+                            .school(course.getSchool())
+                            .studentGrade(course.getStudentGrade())
+                            .teacherName(teacherName)
+                            .subject(course.getSubject())
+                            .currentLessonTime(currentLessonTime)
                             .build()
             );
         }
