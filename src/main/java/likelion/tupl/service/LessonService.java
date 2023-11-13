@@ -46,7 +46,7 @@ public class LessonService {
         // course에 전체 회차 업데이트
         Course course = lesson.getCourse();
         int totalLessonTime = course.getTotalLessonTime();
-        int updatedTotalLessonTime = totalLessonTime+ 1;
+        int updatedTotalLessonTime = totalLessonTime + 1;
         course.setTotalLessonTime(updatedTotalLessonTime);
 
         // course에서 paymentDelayed 업데이트: 전체 회차가 cycle의 배수가 되면 paymentDelayed++
@@ -58,10 +58,14 @@ public class LessonService {
 
         // lesson에 추가적으로 저장해야 할 것: 현재 회차
         int totalTime = lesson.getCourse().getTotalLessonTime();
-        int paymentCycle = lesson.getCourse().getPaymentCycle();
-        int curTime = totalTime % paymentCycle;
+        int curTime;
+        if (totalTime % payCycle == 0) { // totalTime이 0인 경우는 없으므로, 이 경우는 cycle의 배수인 경우임
+            curTime = payCycle;
+        }
+        else {
+            curTime = totalTime % payCycle;
+        }
         lesson.setCurrentLessonTime(curTime);
-
         // lesson을 저장
         lessonRepository.save(lesson);
 
