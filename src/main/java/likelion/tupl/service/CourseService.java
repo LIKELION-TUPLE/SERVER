@@ -2,6 +2,7 @@ package likelion.tupl.service;
 
 import likelion.tupl.dto.CourseDto;
 import likelion.tupl.dto.InviteCodeDto;
+import likelion.tupl.dto.SimpleCourseDto;
 import likelion.tupl.entity.Course;
 import likelion.tupl.entity.Enroll;
 import likelion.tupl.entity.Member;
@@ -232,5 +233,45 @@ public class CourseService {
         }
     }
 
+    // course list for create lesson: 로그인한 선생님이 수업 일지 추가 시 선택할 수 있는 과외 리스트
+    public List<SimpleCourseDto> courseListForCreateLesson() {
+        // 로그인한 선생님 정보 가져옴
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member teacher = optionalMember.get();
+
+        // 선생님이 등록하고 있는 Enroll 가져옴
+        List<Enroll> enrollList = enrollRepository.findByMemberId(teacher.getId());
+
+        // 그 Enroll에 대한 CourseList 가져옴
+        List<Course> courseList = new ArrayList<Course>();
+        for (int i = 0; i < enrollList.size(); i++){
+            Optional<Course> courseOptional = courseRepository.findById(enrollList.get(i).getCourse().getId());
+            courseList.add(courseOptional.get());
+        }
+
+        // 그 Course에 대한 정보를 SimpleCourseDto에 담아서 내보냄
+        List<SimpleCourseDto> simpleCourseDtoList = new ArrayList<SimpleCourseDto>();
+        for (int i = 0; i < courseList.size(); i++) {
+            Course course = courseList.get(i);
+            simpleCourseDtoList.add(
+                    SimpleCourseDto.builder()
+                            .course_id(course.getId())
+                            .color(course.getColor())
+                            .studentName(course.getStudentName())
+                            .school(course.getSchool())
+                            .studentGrade(course.getStudentGrade())
+                            .teacherName(teacher.getName())
+                            .subject(course.getSubject())
+                            .currentLessonTime(course.getTotalLessonTime() % course.getPaymentCycle() + 1)
+                            .build()
+            );
+        }
+
+        return simpleCourseDtoList;
+    }
 
 }

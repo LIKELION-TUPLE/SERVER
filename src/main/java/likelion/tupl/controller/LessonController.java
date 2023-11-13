@@ -2,6 +2,7 @@ package likelion.tupl.controller;
 
 import likelion.tupl.dto.LessonDetailDto;
 import likelion.tupl.dto.LessonDto;
+import likelion.tupl.dto.SimpleCourseDto;
 import likelion.tupl.entity.Lesson;
 import likelion.tupl.repository.HomeworkRepository;
 import likelion.tupl.repository.LessonRepository;
@@ -53,6 +54,4 @@ public class LessonController {
             @PathVariable int month) {
         return lessonService.listLessonsByYearAndMonth(courseId, year, month);
     }
-
-
 }

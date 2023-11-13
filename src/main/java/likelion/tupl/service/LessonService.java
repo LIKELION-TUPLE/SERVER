@@ -3,15 +3,17 @@ package likelion.tupl.service;
 import likelion.tupl.dto.HomeworkDto;
 import likelion.tupl.dto.LessonDetailDto;
 import likelion.tupl.dto.LessonDto;
-import likelion.tupl.entity.Course;
-import likelion.tupl.entity.Homework;
-import likelion.tupl.entity.Lesson;
+import likelion.tupl.dto.SimpleCourseDto;
+import likelion.tupl.entity.*;
 import likelion.tupl.exception.ResourceNotFoundException;
 import likelion.tupl.repository.CourseRepository;
 import likelion.tupl.repository.HomeworkRepository;
 import likelion.tupl.repository.LessonRepository;
+import likelion.tupl.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,7 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final HomeworkRepository homeworkRepository;
     private final CourseRepository courseRepository;
+
 
     // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     public LessonDto createLesson(Long course_id, LessonDto lessonDto) {
@@ -258,4 +261,6 @@ public class LessonService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
 }
