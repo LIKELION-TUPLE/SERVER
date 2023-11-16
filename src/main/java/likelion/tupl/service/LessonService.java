@@ -1,9 +1,6 @@
 package likelion.tupl.service;
 
-import likelion.tupl.dto.HomeworkDto;
-import likelion.tupl.dto.LessonDetailDto;
-import likelion.tupl.dto.LessonDto;
-import likelion.tupl.dto.SimpleCourseDto;
+import likelion.tupl.dto.*;
 import likelion.tupl.entity.*;
 import likelion.tupl.exception.ResourceNotFoundException;
 import likelion.tupl.repository.*;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +23,7 @@ public class LessonService {
     private final HomeworkRepository homeworkRepository;
     private final CourseRepository courseRepository;
     private final EnrollRepository enrollRepository;
+    private final MemberRepository memberRepository;
 
 
     // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
@@ -276,5 +275,81 @@ public class LessonService {
                 .collect(Collectors.toList());
     }
 
+    // date lesson list: 특정 날짜의 수업 리스트
+    public List<DateLessonDto> dateLessonList(DateDto dateDto) {
+        // 날짜 정보 가져오기
 
+        Date targetDate = dateDto.getDate();
+        Instant instant = targetDate.toInstant();
+        LocalDate targetLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        int targetYear = targetLocalDate.getYear();
+        int targetMonth = targetLocalDate.getMonthValue();
+        int targetDay = targetLocalDate.getDayOfMonth();
+        System.out.println("* target date: " + targetDate);
+
+        // 로그인한 유저 정보 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
+        // 로그인한 유저의 과외 ID 리스트 불러오기
+        List<Enroll> enrollList = enrollRepository.findByMemberId(member.getId());
+        List<Course> courseList = new ArrayList<Course>();
+        for (int i = 0; i < enrollList.size(); i++) {
+            courseList.add(enrollList.get(i).getCourse());
+        }
+        List<Long> courseIdList = courseList.stream()
+                .map(Course::getId)
+                .collect(Collectors.toList());
+
+        // 로그인한 유저의 전체 lesson 정보 가져오기
+        List<Lesson> lessonList = lessonRepository.findByCourseIdIn(courseIdList);
+
+        // lesson 중 날짜가 받아온 날짜와 같은 걸 lesson을 찾아서 dateLessonDto에 넣어서 저장
+        List<DateLessonDto> dateLessonDtosList = new ArrayList<>();
+        for (int i = 0; i < lessonList.size(); i++){
+            Lesson lesson = lessonList.get(i);
+            Course course = lesson.getCourse();
+            Date date = lesson.getDate();
+
+            Instant secondInstant = date.toInstant();
+            LocalDate localDate = secondInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+            int year = localDate.getYear();
+            int month = localDate.getMonthValue();
+            int day = localDate.getDayOfMonth();
+
+            if ((targetYear == year && targetMonth == month) && (targetDay == day)) {
+                DateLessonDto dateLessonDto = DateLessonDto.builder()
+                        .course_id(course.getId())
+                        .color(course.getColor())
+                        .studentName(course.getStudentName())
+                        .school(course.getSchool())
+                        .studentGrade(course.getStudentGrade())
+                        .teacherName(getTeacherName(course.getId()))
+                        .subject(course.getSubject())
+                        .currentLessonTime(lesson.getCurrentLessonTime())
+                        .startTime(lesson.getStartTime())
+                        .endTime(lesson.getEndTime())
+                        .build();
+                dateLessonDtosList.add(dateLessonDto);
+            }
+        }
+
+        return dateLessonDtosList;
+
+    }
+
+    public String getTeacherName(Long course_id) {
+        String teacherName = new String();
+        List<Enroll> enrollList = enrollRepository.findByCourseId(course_id);
+        for (int i = 0; i <enrollList.size(); i++) {
+            Member enrollMember = enrollList.get(i).getMember();
+            if (enrollMember.getRole() == Role.ROLE_TEACHER)
+                teacherName = enrollMember.getName();
+        }
+        return teacherName;
+    }
 }

@@ -1,10 +1,11 @@
 package likelion.tupl.dto;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class SimpleCourseDto {
