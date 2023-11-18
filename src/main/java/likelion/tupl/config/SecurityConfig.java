@@ -13,6 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @RequiredArgsConstructor
@@ -47,12 +50,12 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         .antMatchers("/signup/**", "/login").permitAll()
-                        .antMatchers("/hello").hasRole("STUDENT")
-                        .antMatchers("/bye").hasRole("TEACHER")
-                        .antMatchers("/course/**", "/payment/**", "/lessons/**").hasRole("TEACHER")
+                        .antMatchers("/course/student-create").hasRole("STUDENT")
+                        .antMatchers("/course/**", "/payment/**", "/lessons/**").hasAnyRole("TEACHER", "STUDENT")
                         .anyRequest().authenticated())
 
-                .addFilter(corsConfig.corsFilter())
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+
                 .apply(new JwtSecurityConfig(jwtProvider));
 
         return http.build();
