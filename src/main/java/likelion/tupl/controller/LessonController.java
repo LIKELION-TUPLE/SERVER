@@ -1,16 +1,14 @@
 package likelion.tupl.controller;
 
+import likelion.tupl.dto.DateDto;
 import likelion.tupl.dto.LessonDetailDto;
 import likelion.tupl.dto.LessonDto;
-import likelion.tupl.entity.Lesson;
-import likelion.tupl.repository.HomeworkRepository;
-import likelion.tupl.repository.LessonRepository;
+import likelion.tupl.dto.DateLessonDto;
 import likelion.tupl.service.LessonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 import java.util.Map;
 
@@ -54,5 +52,9 @@ public class LessonController {
         return lessonService.listLessonsByYearAndMonth(courseId, year, month);
     }
 
-
+    // date lesson list: 특정 날짜의 수업 리스트
+    @GetMapping("/lessons/today")
+    public List<DateLessonDto> dateLessonList(@RequestBody DateDto dateDto) {
+        return lessonService.dateLessonList(dateDto);
+    }
 }

@@ -16,4 +16,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     List<Lesson> findByCourseIdAndDateBetween(Long courseId, Date startDate, Date endDate);
 
+    List<Lesson> findByCourseIdIn(List<Long> courseIds);
+
 }

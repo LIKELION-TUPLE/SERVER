@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class LessonDto {
     private Long id;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date; // 수업 진행 날짜(년-월-일)
     private LocalTime startTime; // 시작 시간
     private LocalTime endTime; // 종료 시간

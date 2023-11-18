@@ -1,21 +1,18 @@
 package likelion.tupl.service;
 
-import likelion.tupl.dto.HomeworkDto;
-import likelion.tupl.dto.LessonDetailDto;
-import likelion.tupl.dto.LessonDto;
-import likelion.tupl.entity.Course;
-import likelion.tupl.entity.Homework;
-import likelion.tupl.entity.Lesson;
+import likelion.tupl.dto.*;
+import likelion.tupl.entity.*;
 import likelion.tupl.exception.ResourceNotFoundException;
-import likelion.tupl.repository.CourseRepository;
-import likelion.tupl.repository.HomeworkRepository;
-import likelion.tupl.repository.LessonRepository;
+import likelion.tupl.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +22,9 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final HomeworkRepository homeworkRepository;
     private final CourseRepository courseRepository;
+    private final EnrollRepository enrollRepository;
+    private final MemberRepository memberRepository;
+
 
     // create lesson: 수업 일지에서 입력 받아서 저장 (숙제 제외)
     public LessonDto createLesson(Long course_id, LessonDto lessonDto) {
@@ -44,14 +44,27 @@ public class LessonService {
 
         // course에 전체 회차 업데이트
         Course course = lesson.getCourse();
-        course.setTotalLessonTime(course.getTotalLessonTime() + 1);
+        int totalLessonTime = course.getTotalLessonTime();
+        int updatedTotalLessonTime = totalLessonTime + 1;
+        course.setTotalLessonTime(updatedTotalLessonTime);
+
+        // course에서 paymentDelayed 업데이트: 전체 회차가 cycle의 배수가 되면 paymentDelayed++
+        int payCycle = course.getPaymentCycle();
+        if (updatedTotalLessonTime % payCycle == 0) {
+            course.setPaymentDelayed(course.getPaymentDelayed() + 1);
+            courseRepository.save(course);
+        }
 
         // lesson에 추가적으로 저장해야 할 것: 현재 회차
         int totalTime = lesson.getCourse().getTotalLessonTime();
-        int paymentCycle = lesson.getCourse().getPaymentCycle();
-        int curTime = totalTime % paymentCycle;
+        int curTime;
+        if (totalTime % payCycle == 0) { // totalTime이 0인 경우는 없으므로, 이 경우는 cycle의 배수인 경우임
+            curTime = payCycle;
+        }
+        else {
+            curTime = totalTime % payCycle;
+        }
         lesson.setCurrentLessonTime(curTime);
-
         // lesson을 저장
         lessonRepository.save(lesson);
 
@@ -82,9 +95,17 @@ public class LessonService {
 
         // course에서 totalLessonTime 줄이기
         Course course = courseRepository.getById(lesson.getCourse().getId());
-        int totalTime = course.getTotalLessonTime();
-        course.setTotalLessonTime(totalTime - 1);
+        int totalLessonTime = course.getTotalLessonTime();
+        int deletedTotalLessonTime = totalLessonTime - 1;
+        course.setTotalLessonTime(deletedTotalLessonTime);
         courseRepository.save(course);
+
+        // course에서 paymentDelayed 업데이트: (지우기 전의) totalLessonTime이 cycle의 배수가 되면 paymentDelayed--
+        Integer payCycle = course.getPaymentCycle();
+        if (totalLessonTime % payCycle == 0) {
+            course.setPaymentDelayed(course.getPaymentDelayed() - 1);
+            courseRepository.save(course);
+        }
 
         // 해당 course에서 이 lesson보다 뒤에 생성된 lesson들의 currentLessonTime을 하나씩 줄여줌
         int targetIndex = -1;
@@ -165,8 +186,7 @@ public class LessonService {
         // homeworkForNextList에 값 채워넣기
         List<Homework> homeworkForNextList = homeworkRepository.findByLessonId(lesson_id);
 
-        // lessonDetailDto에 담아서 내보내기
-
+        // 숙제들을 HomeworkList들에 담기
         Iterator<Homework> homeworkForTodayIterator = homeworkForTodayList.iterator();
         Iterator<Homework> homeworkForNextIterator = homeworkForNextList.iterator();
 
@@ -195,6 +215,16 @@ public class LessonService {
             homeworkForNextDtoList.add(homeworkDto);
         }
 
+        // 선생님 이름 찾기
+        String teacherName = new String();
+        List<Enroll> enrollList = enrollRepository.findByCourseId(course.getId());
+        for (int i = 0; i <enrollList.size(); i++) {
+            Member enrollMember = enrollList.get(i).getMember();
+            if (enrollMember.getRole() == Role.ROLE_TEACHER)
+                teacherName = enrollMember.getName();
+        }
+
+
         LessonDetailDto lessonDetailDto = new LessonDetailDto();
         lessonDetailDto.setId(lesson.getId());
         lessonDetailDto.setDate(lesson.getDate());
@@ -214,6 +244,7 @@ public class LessonService {
         lessonDetailDto.setStudentGrade(course.getStudentGrade());
         lessonDetailDto.setSubject(course.getSubject());
         lessonDetailDto.setStudentName(course.getStudentName());
+        lessonDetailDto.setTeacherName(teacherName);
 
         return lessonDetailDto;
     }
@@ -242,5 +273,83 @@ public class LessonService {
                         .currentLessonTime(lesson.getCurrentLessonTime())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    // date lesson list: 특정 날짜의 수업 리스트
+    public List<DateLessonDto> dateLessonList(DateDto dateDto) {
+        // 날짜 정보 가져오기
+
+        Date targetDate = dateDto.getDate();
+        Instant instant = targetDate.toInstant();
+        LocalDate targetLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        int targetYear = targetLocalDate.getYear();
+        int targetMonth = targetLocalDate.getMonthValue();
+        int targetDay = targetLocalDate.getDayOfMonth();
+        System.out.println("* target date: " + targetDate);
+
+        // 로그인한 유저 정보 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
+        // 로그인한 유저의 과외 ID 리스트 불러오기
+        List<Enroll> enrollList = enrollRepository.findByMemberId(member.getId());
+        List<Course> courseList = new ArrayList<Course>();
+        for (int i = 0; i < enrollList.size(); i++) {
+            courseList.add(enrollList.get(i).getCourse());
+        }
+        List<Long> courseIdList = courseList.stream()
+                .map(Course::getId)
+                .collect(Collectors.toList());
+
+        // 로그인한 유저의 전체 lesson 정보 가져오기
+        List<Lesson> lessonList = lessonRepository.findByCourseIdIn(courseIdList);
+
+        // lesson 중 날짜가 받아온 날짜와 같은 걸 lesson을 찾아서 dateLessonDto에 넣어서 저장
+        List<DateLessonDto> dateLessonDtosList = new ArrayList<>();
+        for (int i = 0; i < lessonList.size(); i++){
+            Lesson lesson = lessonList.get(i);
+            Course course = lesson.getCourse();
+            Date date = lesson.getDate();
+
+            Instant secondInstant = date.toInstant();
+            LocalDate localDate = secondInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+            int year = localDate.getYear();
+            int month = localDate.getMonthValue();
+            int day = localDate.getDayOfMonth();
+
+            if ((targetYear == year && targetMonth == month) && (targetDay == day)) {
+                DateLessonDto dateLessonDto = DateLessonDto.builder()
+                        .course_id(course.getId())
+                        .color(course.getColor())
+                        .studentName(course.getStudentName())
+                        .school(course.getSchool())
+                        .studentGrade(course.getStudentGrade())
+                        .teacherName(getTeacherName(course.getId()))
+                        .subject(course.getSubject())
+                        .currentLessonTime(lesson.getCurrentLessonTime())
+                        .startTime(lesson.getStartTime())
+                        .endTime(lesson.getEndTime())
+                        .build();
+                dateLessonDtosList.add(dateLessonDto);
+            }
+        }
+
+        return dateLessonDtosList;
+
+    }
+
+    public String getTeacherName(Long course_id) {
+        String teacherName = new String();
+        List<Enroll> enrollList = enrollRepository.findByCourseId(course_id);
+        for (int i = 0; i <enrollList.size(); i++) {
+            Member enrollMember = enrollList.get(i).getMember();
+            if (enrollMember.getRole() == Role.ROLE_TEACHER)
+                teacherName = enrollMember.getName();
+        }
+        return teacherName;
     }
 }
