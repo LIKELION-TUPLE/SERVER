@@ -36,6 +36,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
+                .cors().and()
+
                 .csrf(csrf -> csrf.disable())
 
                 .httpBasic(httpBasic -> httpBasic.disable())
@@ -53,8 +55,6 @@ public class SecurityConfig {
                         .antMatchers("/course/student-create").hasRole("STUDENT")
                         .antMatchers("/course/**", "/payment/**", "/lessons/**").hasAnyRole("TEACHER", "STUDENT")
                         .anyRequest().authenticated())
-
-                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
 
                 .apply(new JwtSecurityConfig(jwtProvider));
 
