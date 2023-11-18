@@ -1,7 +1,7 @@
 spring:
   datasource:
-    driver-class-name: ${DRIVER_CLASS_NAME}
-    url: jdbc:mysql://{$DB_URL}:${DB_PORT}/${DB_NAME}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mariadb://${DB_URL}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
@@ -25,4 +25,4 @@ jwt:
   token-validity-in-seconds: ${JWT_VALIDITY}
 
 server:
-  port: 8081
+  port: 8080
