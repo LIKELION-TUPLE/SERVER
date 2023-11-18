@@ -56,6 +56,8 @@ public class SecurityConfig {
                         .antMatchers("/course/**", "/payment/**", "/lessons/**").hasAnyRole("TEACHER", "STUDENT")
                         .anyRequest().authenticated())
 
+                .oauth2Login().and()
+
                 .apply(new JwtSecurityConfig(jwtProvider));
 
         return http.build();
