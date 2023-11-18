@@ -23,3 +23,6 @@ logging:
 jwt:
   header: Authorization
   token-validity-in-seconds: ${JWT_VALIDITY}
+
+server:
+  port: 8081
