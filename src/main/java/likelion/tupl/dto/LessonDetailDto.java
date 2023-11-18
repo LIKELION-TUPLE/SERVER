@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 public class LessonDetailDto extends LessonDto {
     private String color; // 대표 색상
-    private String school; // 학생 학교
+    private String studentSchool; // 학생 학교
     private Integer studentGrade; // 학생 학년
     private String subject; // 과목
     private String studentName; // 학생 이름
