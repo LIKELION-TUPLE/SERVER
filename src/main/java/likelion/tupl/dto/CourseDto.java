@@ -27,7 +27,7 @@ public class CourseDto {
     private Integer studentAge; // 학생 나이
 
     @NotNull(message = "학교는 Null 일 수 없습니다!")
-    private String school; // 학생 학교
+    private String studentSchool; // 학생 학교
 
     @NotNull(message = "학년은 Null 일 수 없습니다!")
     private Integer studentGrade; // 학생 학년
@@ -41,6 +41,9 @@ public class CourseDto {
 
     @NotNull(message = "수업 시간은 Null 일 수 없습니다!")
     private Integer courseTime; // 수업 시간 (분)
+
+    @NotNull(message = "과외비는 Null 일 수 없습니다!")
+    private Integer coursePayment; // 과외비
 
     @NotNull(message = "입금 회차는 Null 일 수 없습니다!")
     private Integer paymentCycle; // 입금 회차

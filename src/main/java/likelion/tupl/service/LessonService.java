@@ -240,7 +240,7 @@ public class LessonService {
         lessonDetailDto.setHomeworkForNextList(homeworkForNextDtoList);
 
         lessonDetailDto.setColor(course.getColor());
-        lessonDetailDto.setSchool(course.getSchool());
+        lessonDetailDto.setStudentSchool(course.getStudentSchool());
         lessonDetailDto.setStudentGrade(course.getStudentGrade());
         lessonDetailDto.setSubject(course.getSubject());
         lessonDetailDto.setStudentName(course.getStudentName());
@@ -326,7 +326,7 @@ public class LessonService {
                         .course_id(course.getId())
                         .color(course.getColor())
                         .studentName(course.getStudentName())
-                        .school(course.getSchool())
+                        .studentSchool(course.getStudentSchool())
                         .studentGrade(course.getStudentGrade())
                         .teacherName(getTeacherName(course.getId()))
                         .subject(course.getSubject())
