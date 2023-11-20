@@ -60,4 +60,8 @@ public class MemberService {
         }
         else return "false";
     }
+
+    public String findName(String loginId){
+        return memberRepository.findOneByLoginId(loginId).get().getName();
+    }
 }

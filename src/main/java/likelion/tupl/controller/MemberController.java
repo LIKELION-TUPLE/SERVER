@@ -79,6 +79,7 @@ public class MemberController {
 
         JwtDto jwtDto = JwtDto.builder()
                 .loginId(authentication.getName())
+                .name(memberService.findName(authentication.getName()))
                 .token(jwt)
                 .build();
 
