@@ -19,12 +19,13 @@ public class Course {
     private String color; // 대표 색상
     private String studentName; // 학생 이름
     private Integer studentAge; // 학생 나이
-    private String school; // 학생 학교
+    private String studentSchool; // 학생 학교
     private Integer studentGrade; // 학생 학년
     private String studentPhone; // 학생 폰 번호
     private String parentPhone; // 학부모 폰 번호
     private String subject; // 과외 과목
     private Integer courseTime; // 수업 시간
+    private Integer coursePayment; // 과외비
     private Integer paymentCycle; // 입금 회차
 
     private Integer paymentDelayed; // 밀린 입금 횟수

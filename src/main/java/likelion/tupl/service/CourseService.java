@@ -49,12 +49,13 @@ public class CourseService {
                 .color(courseDto.getColor())
                 .studentName(courseDto.getStudentName())
                 .studentAge(courseDto.getStudentAge())
-                .school(courseDto.getSchool())
+                .studentSchool(courseDto.getStudentSchool())
                 .studentGrade(courseDto.getStudentGrade())
                 .studentPhone(courseDto.getStudentPhone())
                 .parentPhone(courseDto.getParentPhone())
                 .subject(courseDto.getSubject())
                 .courseTime(courseDto.getCourseTime())
+                .coursePayment(courseDto.getCoursePayment())
                 .paymentCycle(courseDto.getPaymentCycle())
                 .paymentDelayed(0)
                 .totalLessonTime(0)
@@ -125,12 +126,13 @@ public class CourseService {
             existingCourse.setColor(updatedCourseDto.getColor());
             existingCourse.setStudentName(updatedCourseDto.getStudentName());
             existingCourse.setStudentAge(updatedCourseDto.getStudentAge());
-            existingCourse.setSchool(updatedCourseDto.getSchool());
+            existingCourse.setStudentSchool(updatedCourseDto.getStudentSchool());
             existingCourse.setStudentGrade(updatedCourseDto.getStudentGrade());
             existingCourse.setStudentPhone(updatedCourseDto.getStudentPhone());
             existingCourse.setParentPhone(updatedCourseDto.getParentPhone());
             existingCourse.setSubject(updatedCourseDto.getSubject());
             existingCourse.setCourseTime(updatedCourseDto.getCourseTime());
+            existingCourse.setCoursePayment(updatedCourseDto.getCoursePayment());
             existingCourse.setPaymentCycle(updatedCourseDto.getPaymentCycle());
 
             // 변경 후 저장
@@ -163,12 +165,13 @@ public class CourseService {
                     .color(course.getColor())
                     .studentName(course.getStudentName())
                     .studentAge(course.getStudentAge())
-                    .school(course.getSchool())
+                    .studentSchool(course.getStudentSchool())
                     .studentGrade(course.getStudentGrade())
                     .studentPhone(course.getStudentPhone())
                     .parentPhone(course.getParentPhone())
                     .subject(course.getSubject())
                     .courseTime(course.getCourseTime())
+                    .coursePayment(course.getCoursePayment())
                     .paymentCycle(course.getPaymentCycle())
                     .paymentDelayed(course.getPaymentDelayed())
                     .totalLessonTime(course.getTotalLessonTime())
@@ -189,7 +192,7 @@ public class CourseService {
                 .map(course -> CourseDto.builder()
                         .color(course.getColor())
                         .studentName(course.getStudentName())
-                        .school(course.getSchool())
+                        .studentSchool(course.getStudentSchool())
                         .studentGrade(course.getStudentGrade())
                         .subject(course.getSubject())
                         .totalLessonTime(course.getTotalLessonTime())
@@ -263,7 +266,7 @@ public class CourseService {
                             .course_id(course.getId())
                             .color(course.getColor())
                             .studentName(course.getStudentName())
-                            .school(course.getSchool())
+                            .studentSchool(course.getStudentSchool())
                             .studentGrade(course.getStudentGrade())
                             .teacherName(teacher.getName())
                             .subject(course.getSubject())
@@ -331,7 +334,7 @@ public class CourseService {
                             .course_id(course.getId())
                             .color(course.getColor())
                             .studentName(course.getStudentName())
-                            .school(course.getSchool())
+                            .studentSchool(course.getStudentSchool())
                             .studentGrade(course.getStudentGrade())
                             .teacherName(teacherName)
                             .subject(course.getSubject())
