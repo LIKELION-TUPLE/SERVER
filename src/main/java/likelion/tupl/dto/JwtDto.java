@@ -14,5 +14,8 @@ public class JwtDto {
     private String loginId;
 
     @NotNull
+    private String name;
+
+    @NotNull
     private String token;
 }
