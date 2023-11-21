@@ -260,6 +260,14 @@ public class LessonService {
 
         List<Lesson> lessons = lessonRepository.findByCourseIdAndDateBetween(courseId, startDate, endDate);
 
+        // 날짜순으로 오름차순 정렬
+        Collections.sort(lessons, new Comparator<Lesson>() {
+            @Override
+            public int compare(Lesson o1, Lesson o2) {
+                return o1.getDate().compareTo(o2.getDate());
+            }
+        });
+
         // Convert Lesson entities to LessonDto
         return lessons.stream()
                 .map(lesson -> LessonDto.builder()
