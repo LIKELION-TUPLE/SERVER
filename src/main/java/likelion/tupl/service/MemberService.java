@@ -60,4 +60,9 @@ public class MemberService {
         }
         else return "false";
     }
+
+    // 사용자 이름 가져오기
+    public String findName(String loginId){
+        return memberRepository.findOneByLoginId(loginId).get().getName();
+    }
 }
