@@ -55,27 +55,17 @@ public class LessonService {
             courseRepository.save(course);
         }
 
-        // lesson에 추가적으로 저장해야 할 것: 현재 회차
-        int totalTime = lesson.getCourse().getTotalLessonTime();
-        int curTime;
-        if (totalTime % payCycle == 0) { // totalTime이 0인 경우는 없으므로, 이 경우는 cycle의 배수인 경우임
-            curTime = payCycle;
-        }
-        else {
-            curTime = totalTime % payCycle;
-        }
-        lesson.setCurrentLessonTime(curTime);
-
         // lesson을 저장
         lessonRepository.save(lesson);
 
         // DB에서 날짜 순서로 불러오고
         List<Lesson> sortedLessons = lessonRepository.findByCourseIdOrderByDate(course_id);
-
         // 모든 lesson의 currentLessonTime 재설정
+        int curTime;
         for (int i = 0; i < sortedLessons.size(); i++) {
+            curTime = (i % payCycle)+1;
             Lesson sortedLesson = sortedLessons.get(i);
-            sortedLesson.setCurrentLessonTime(i + 1);
+            sortedLesson.setCurrentLessonTime(curTime);
             lessonRepository.save(sortedLesson);
         }
 
