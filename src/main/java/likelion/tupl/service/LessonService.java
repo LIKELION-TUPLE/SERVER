@@ -60,6 +60,7 @@ public class LessonService {
 
         // DB에서 날짜 순서로 불러오고
         List<Lesson> sortedLessons = lessonRepository.findByCourseIdOrderByDate(course_id);
+
         // 모든 lesson의 currentLessonTime 재설정
         int curTime;
         for (int i = 0; i < sortedLessons.size(); i++) {
