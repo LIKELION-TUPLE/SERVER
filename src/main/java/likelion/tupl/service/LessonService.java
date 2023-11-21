@@ -65,8 +65,19 @@ public class LessonService {
             curTime = totalTime % payCycle;
         }
         lesson.setCurrentLessonTime(curTime);
+
         // lesson을 저장
         lessonRepository.save(lesson);
+
+        // DB에서 날짜 순서로 불러오고
+        List<Lesson> sortedLessons = lessonRepository.findByCourseIdOrderByDate(course_id);
+
+        // 모든 lesson의 currentLessonTime 재설정
+        for (int i = 0; i < sortedLessons.size(); i++) {
+            Lesson sortedLesson = sortedLessons.get(i);
+            sortedLesson.setCurrentLessonTime(i + 1);
+            lessonRepository.save(sortedLesson);
+        }
 
         // return할 lessonDto를 업데이트
         lessonDto.setId(lesson.getId());
@@ -259,6 +270,14 @@ public class LessonService {
         Date endDate = calendar.getTime();
 
         List<Lesson> lessons = lessonRepository.findByCourseIdAndDateBetween(courseId, startDate, endDate);
+
+        // 날짜순으로 오름차순 정렬
+        Collections.sort(lessons, new Comparator<Lesson>() {
+            @Override
+            public int compare(Lesson o1, Lesson o2) {
+                return o1.getDate().compareTo(o2.getDate());
+            }
+        });
 
         // Convert Lesson entities to LessonDto
         return lessons.stream()
