@@ -2,12 +2,10 @@ package likelion.tupl.service;
 
 import likelion.tupl.dto.PaymentBlockDto;
 import likelion.tupl.entity.Course;
-import likelion.tupl.entity.Enroll;
 import likelion.tupl.entity.Lesson;
 import likelion.tupl.entity.Member;
 import likelion.tupl.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import java.util.stream.Collectors;
 public class PaymentService {
     private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
-    private final EnrollRepository enrollRepository;
     private final MemberRepository memberRepository;
 
     // input받은 courseId를 db에서 못찾았을 경우 고려한 함수
@@ -61,13 +58,14 @@ public class PaymentService {
         // PaymentBlockDto 생성
         PaymentBlockDto paymentBlockDto = new PaymentBlockDto();
         paymentBlockDto.setCourseId((courseId));
-        paymentBlockDto.setNoPaymentCount(payDel);
+        paymentBlockDto.setPaymentCycle(payCycle);
         paymentBlockDto.setColor(color);
         paymentBlockDto.setStudentName(studentName);
         paymentBlockDto.setStudentSchool(studentSchool);
         paymentBlockDto.setStudentGrade(studentGrade);
         paymentBlockDto.setSubject(subject);
         paymentBlockDto.setCoursePayment(coursePayment);
+        paymentBlockDto.setNoPaymentCount(payDel);
 
         if (payDel == 0) {
             // date1, date2, date3, date4, date5, date6에 null 설정
@@ -128,6 +126,7 @@ public class PaymentService {
         Member member = optionalMember.get();
 
         // 입력 받은 MemberId로 해당 Member가 가지고 있는 Course 모두 가져오기
+        System.out.println(member.getId());
         List<Course> courses = courseRepository.findAllByMemberId(member.getId());
 
         // memberId 불일치시 오류 반환

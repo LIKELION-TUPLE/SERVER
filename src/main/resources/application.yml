@@ -1,8 +1,8 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306
-    username: tupl_admin
+    url: jdbc:mysql://127.0.0.1:3306/tupl
+    username: tupl-admin
     password: likelion
 
   jpa:
