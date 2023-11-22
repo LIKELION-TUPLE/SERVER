@@ -2,14 +2,16 @@ package likelion.tupl.service;
 
 import likelion.tupl.dto.PaymentBlockDto;
 import likelion.tupl.entity.Course;
+import likelion.tupl.entity.Enroll;
 import likelion.tupl.entity.Lesson;
-import likelion.tupl.repository.CourseRepository;
-import likelion.tupl.repository.LessonRepository;
+import likelion.tupl.entity.Member;
+import likelion.tupl.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,11 +19,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
-    @Autowired
     private final LessonRepository lessonRepository;
-
-    @Autowired
     private final CourseRepository courseRepository;
+    private final EnrollRepository enrollRepository;
+    private final MemberRepository memberRepository;
 
     // input받은 courseId를 db에서 못찾았을 경우 고려한 함수
     private Course getCourseById(Long courseId) {
@@ -41,6 +42,14 @@ public class PaymentService {
         // 입력 받은 courseId로 course의 paymentDelayed 값 가져오기
         int payDel = getCourseById(courseId).getPaymentDelayed();
 
+        // 입력 받은 courseId로 course의 색깔, 학생이름, 학생학교, 학생학년, 과목 값 가져오기
+        String color = getCourseById(courseId).getColor(); // 색깔
+        String studentName = getCourseById(courseId).getStudentName();// 학생 이름
+        String studentSchool = getCourseById(courseId).getStudentSchool(); // 학생 학교
+        int studentGrade = getCourseById(courseId).getStudentGrade(); // 학생 학년
+        String subject = getCourseById(courseId).getSubject(); // 과목
+        int coursePayment = getCourseById(courseId).getCoursePayment(); // 금액
+
         // 입력 받은 courseId로 전체 lesson 가져오기
         List<Lesson> lessons = lessonRepository.findByCourseIdOrderByDate(courseId);
 
@@ -53,6 +62,12 @@ public class PaymentService {
         PaymentBlockDto paymentBlockDto = new PaymentBlockDto();
         paymentBlockDto.setCourseId((courseId));
         paymentBlockDto.setNoPaymentCount(payDel);
+        paymentBlockDto.setColor(color);
+        paymentBlockDto.setStudentName(studentName);
+        paymentBlockDto.setStudentSchool(studentSchool);
+        paymentBlockDto.setStudentGrade(studentGrade);
+        paymentBlockDto.setSubject(subject);
+        paymentBlockDto.setCoursePayment(coursePayment);
 
         if (payDel == 0) {
             // date1, date2, date3, date4, date5, date6에 null 설정
@@ -102,13 +117,22 @@ public class PaymentService {
      * blocklist 생성
      */
 
-    public List<PaymentBlockDto> createPaymentBlocks(Long memberId) {
+    public List<PaymentBlockDto> createPaymentBlocks() {
+
+        // 로그인한 유저 정보 가져옴
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+
+        String username = userDetails.getUsername();
+        Optional<Member> optionalMember = memberRepository.findOneByLoginId(username);
+        Member member = optionalMember.get();
+
         // 입력 받은 MemberId로 해당 Member가 가지고 있는 Course 모두 가져오기
-        List<Course> courses = courseRepository.findAllByMemberId(memberId);
+        List<Course> courses = courseRepository.findAllByMemberId(member.getId());
 
         // memberId 불일치시 오류 반환
         if (courses.isEmpty()) {
-            throw new RuntimeException("Member not found with ID: " + memberId);
+            throw new RuntimeException("Member not found with ID: " + member.getId());
         }
 
         // Course 엔터티에서 id만 추출하여 리스트화

@@ -15,9 +15,9 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     //멤버 아이디 받았을 때 -> block list에 course id 포함해서 건네주기
-    @GetMapping("/payment/{memberId}")
-    public List<PaymentBlockDto> createPaymentBlocks(@PathVariable("memberId") Long memberId){
-        return paymentService.createPaymentBlocks(memberId);
+    @GetMapping("/payment")
+    public List<PaymentBlockDto> createPaymentBlocks(){
+        return paymentService.createPaymentBlocks();
     }
 
     //course_id에 입금 완료 버튼이 눌렸을 때 -> paymentDelayed -1씩

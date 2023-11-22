@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://tupldatabase.cpqi94mihqjg.ap-northeast-2.rds.amazonaws.com:3306
+    url: jdbc:mysql://127.0.0.1:3306
     username: tupl_admin
     password: likelion
 
