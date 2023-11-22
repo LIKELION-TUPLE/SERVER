@@ -286,17 +286,7 @@ public class LessonService {
     }
 
     // date lesson list: 특정 날짜의 수업 리스트
-    public List<DateLessonDto> dateLessonList(DateDto dateDto) {
-        // 날짜 정보 가져오기
-
-        Date targetDate = dateDto.getDate();
-        Instant instant = targetDate.toInstant();
-        LocalDate targetLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
-
-        int targetYear = targetLocalDate.getYear();
-        int targetMonth = targetLocalDate.getMonthValue();
-        int targetDay = targetLocalDate.getDayOfMonth();
-        System.out.println("* target date: " + targetDate);
+    public List<DateLessonDto> dateLessonList(int targetYear, int targetMonth, int targetDay) {
 
         // 로그인한 유저 정보 가져오기
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
