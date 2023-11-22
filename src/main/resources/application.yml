@@ -1,9 +1,9 @@
 spring:
   datasource:
-    driver-class-name: ${DRIVER_CLASS_NAME}
-    url: jdbc:mariadb://${DB_URL}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://tupldatabase.cpqi94mihqjg.ap-northeast-2.rds.amazonaws.com:3306
+    username: tupl_admin
+    password: likelion
 
   jpa:
     hibernate:
@@ -22,4 +22,4 @@ logging:
 
 jwt:
   header: Authorization
-  token-validity-in-seconds: ${JWT_VALIDITY}
+  token-validity-in-seconds: 86400 # 24시간

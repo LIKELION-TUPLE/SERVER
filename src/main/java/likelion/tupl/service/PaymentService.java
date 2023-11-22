@@ -4,14 +4,13 @@ import likelion.tupl.dto.PaymentBlockDto;
 import likelion.tupl.entity.Course;
 import likelion.tupl.entity.Lesson;
 import likelion.tupl.repository.CourseRepository;
-import likelion.tupl.repository.HomeworkRepository;
 import likelion.tupl.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,12 +22,6 @@ public class PaymentService {
 
     @Autowired
     private final CourseRepository courseRepository;
-
-    // input받은 lessonId를 db에서 못찾았을 경우 고려한 함수
-    private Lesson getLessonById(Long lessonId) {
-        Optional<Lesson> optionalLesson = lessonRepository.findById(lessonId);
-        return optionalLesson.orElseThrow(() -> new RuntimeException("Lesson not found with ID: " + lessonId));
-    }
 
     // input받은 courseId를 db에서 못찾았을 경우 고려한 함수
     private Course getCourseById(Long courseId) {
@@ -49,7 +42,7 @@ public class PaymentService {
         int payDel = getCourseById(courseId).getPaymentDelayed();
 
         // 입력 받은 courseId로 전체 lesson 가져오기
-        List<Lesson> lessons = lessonRepository.findByCourseId(courseId);
+        List<Lesson> lessons = lessonRepository.findByCourseIdOrderByDate(courseId);
 
         // courseId 불일치시 오류 반환
         if (lessons.isEmpty()) {
@@ -95,7 +88,7 @@ public class PaymentService {
         } else if (payDel == 3) {
             // cycle 세 개의 첫번째, 마지막 날짜를 Dto에 저장
             paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-3)).getDate());
-            paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle-2)-1).getDate());          paymentBlockDto.setDate1(lessons.get(lessons.size()-payCycle*payDel--).getDate());
+            paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle-2)-1).getDate());
             paymentBlockDto.setDate3(lessons.get(payCycle*(lessons.size()/payCycle-2)).getDate());
             paymentBlockDto.setDate4(lessons.get(payCycle*(lessons.size()/payCycle-1)-1).getDate());
             paymentBlockDto.setDate5(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
