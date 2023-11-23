@@ -54,7 +54,7 @@ public class LessonController {
 
     // date lesson list: 특정 날짜의 수업 리스트
     @GetMapping("/lessons/today")
-    public List<DateLessonDto> dateLessonList(@RequestBody DateDto dateDto) {
-        return lessonService.dateLessonList(dateDto);
+    public List<DateLessonDto> dateLessonList(@RequestParam int year, @RequestParam int month, @RequestParam int day) {
+        return lessonService.dateLessonList(year, month, day);
     }
 }
