@@ -102,7 +102,7 @@ public class LessonService {
         course.setTotalLessonTime(deletedTotalLessonTime);
         courseRepository.save(course);
 
-        // course에서 paymentDelayed 업데이트: (지우기 전의) totalLessonTime이 cycle의 배수가 되면 paymentDelayed--
+        // course에서 paymentDelayed 업데이트: (지우기 전의) totalLessonTime이 cycle의 배수 +1이 되면 paymentDelayed--
         Integer payCycle = course.getPaymentCycle();
         if (totalLessonTime % payCycle == 1) {
             course.setPaymentDelayed(course.getPaymentDelayed() - 1);
