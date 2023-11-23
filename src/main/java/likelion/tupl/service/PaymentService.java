@@ -74,8 +74,9 @@ public class PaymentService {
 
             } else {
                 // cycle의 첫번째 날짜를 delayed 개수만큼 리스트화
-                List<Date> startDates = lessons.stream().filter(h -> h.getCurrentLessonTime() == 1).limit(payDel).map(Lesson::getDate).collect(Collectors.toList());
-                Collections.reverse(startDates); // 리스트를 역순으로 변경
+                List<Lesson> startLessons = lessons.stream().filter(h -> h.getCurrentLessonTime() == 1).collect(Collectors.toList());
+                Collections.reverse(startLessons); // 리스트를 역순으로 변경
+                List<Date> startDates = startLessons.stream().limit(payDel).map(Lesson::getDate).collect(Collectors.toList());
                 paymentBlockDto.setDates(startDates);
 
             }
