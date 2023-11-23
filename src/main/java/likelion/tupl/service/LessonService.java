@@ -48,9 +48,9 @@ public class LessonService {
         int updatedTotalLessonTime = totalLessonTime + 1;
         course.setTotalLessonTime(updatedTotalLessonTime);
 
-        // course에서 paymentDelayed 업데이트: 전체 회차가 cycle의 배수가 되면 paymentDelayed++
+        // course에서 paymentDelayed 업데이트: 전체 회차가 cycle의 배수 +1이 되면 paymentDelayed++
         int payCycle = course.getPaymentCycle();
-        if (updatedTotalLessonTime % payCycle == 0) {
+        if (updatedTotalLessonTime % payCycle == 1) {
             course.setPaymentDelayed(course.getPaymentDelayed() + 1);
             courseRepository.save(course);
         }
@@ -104,7 +104,7 @@ public class LessonService {
 
         // course에서 paymentDelayed 업데이트: (지우기 전의) totalLessonTime이 cycle의 배수가 되면 paymentDelayed--
         Integer payCycle = course.getPaymentCycle();
-        if (totalLessonTime % payCycle == 0) {
+        if (totalLessonTime % payCycle == 1) {
             course.setPaymentDelayed(course.getPaymentDelayed() - 1);
             courseRepository.save(course);
         }

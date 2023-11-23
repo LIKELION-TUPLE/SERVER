@@ -6,11 +6,12 @@ import likelion.tupl.entity.Lesson;
 import likelion.tupl.entity.Member;
 import likelion.tupl.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,44 +69,14 @@ public class PaymentService {
             paymentBlockDto.setNoPaymentCount(payDel);
 
             if (payDel == 0) {
-                // date1, date2, date3, date4, date5, date6에 null 설정
-                paymentBlockDto.setDate1(null);
-                paymentBlockDto.setDate2(null);
-                paymentBlockDto.setDate3(null);
-                paymentBlockDto.setDate4(null);
-                paymentBlockDto.setDate5(null);
-                paymentBlockDto.setDate6(null);
+                // delayed null 설정
+                paymentBlockDto.setDates(Collections.emptyList());
 
-            } else if (payDel == 1) {
-                // cycle의 첫번째, 마지막 날짜를 Dto에 저장
-                paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
-                paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle)-1).getDate());
+            } else {
+                // cycle의 첫번째 날짜를 delayed 개수만큼 리스트화
+                List<Date> startDates = lessons.stream().filter(h -> h.getCurrentLessonTime() == 1).limit(payDel).map(Lesson::getDate).collect(Collectors.toList());
+                paymentBlockDto.setDates(startDates);
 
-                // date3, date4, date5, date6에 null 설정
-                paymentBlockDto.setDate3(null);
-                paymentBlockDto.setDate4(null);
-                paymentBlockDto.setDate5(null);
-                paymentBlockDto.setDate6(null);
-
-            } else if (payDel == 2) {
-                // cycle 두 개의 첫번째, 마지막 날짜를 Dto에 저장
-                paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-2)).getDate());
-                paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle-1)-1).getDate());
-                paymentBlockDto.setDate3(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
-                paymentBlockDto.setDate4(lessons.get(payCycle*(lessons.size()/payCycle)-1).getDate());
-
-                // date5, date6에 null 설정
-                paymentBlockDto.setDate5(null);
-                paymentBlockDto.setDate6(null);
-
-            } else if (payDel == 3) {
-                // cycle 세 개의 첫번째, 마지막 날짜를 Dto에 저장
-                paymentBlockDto.setDate1(lessons.get(payCycle*(lessons.size()/payCycle-3)).getDate());
-                paymentBlockDto.setDate2(lessons.get(payCycle*(lessons.size()/payCycle-2)-1).getDate());
-                paymentBlockDto.setDate3(lessons.get(payCycle*(lessons.size()/payCycle-2)).getDate());
-                paymentBlockDto.setDate4(lessons.get(payCycle*(lessons.size()/payCycle-1)-1).getDate());
-                paymentBlockDto.setDate5(lessons.get(payCycle*(lessons.size()/payCycle-1)).getDate());
-                paymentBlockDto.setDate6(lessons.get(payCycle*(lessons.size()/payCycle)-1).getDate());
             }
 
             return paymentBlockDto;
