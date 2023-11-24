@@ -17,5 +17,8 @@ public class JwtDto {
     private String name;
 
     @NotNull
+    private String role;
+
+    @NotNull
     private String token;
 }

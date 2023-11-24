@@ -65,4 +65,8 @@ public class MemberService {
     public String findName(String loginId){
         return memberRepository.findOneByLoginId(loginId).get().getName();
     }
+
+    public String findRole(String loginId){
+        return memberRepository.findOneByLoginId(loginId).get().getRole().toString();
+    }
 }
