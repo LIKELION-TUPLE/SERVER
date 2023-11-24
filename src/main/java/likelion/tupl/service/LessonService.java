@@ -333,6 +333,7 @@ public class LessonService {
                         .currentLessonTime(lesson.getCurrentLessonTime())
                         .startTime(lesson.getStartTime())
                         .endTime(lesson.getEndTime())
+                        .lesson_id(lesson.getId())
                         .build();
                 dateLessonDtosList.add(dateLessonDto);
             }

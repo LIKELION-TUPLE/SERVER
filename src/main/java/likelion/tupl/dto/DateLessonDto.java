@@ -13,4 +13,5 @@ import java.time.LocalTime;
 public class DateLessonDto extends SimpleCourseDto {
     private LocalTime startTime; // 시작 시간
     private LocalTime endTime; // 종료 시간
+    private Long lesson_id; // lesson id
 }
